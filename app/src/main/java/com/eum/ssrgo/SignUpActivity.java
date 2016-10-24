@@ -158,6 +158,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     private void onAuthSuccess(FirebaseUser user) {
         String username = usernameFromEmail(user.getEmail());
+        String userID= user.getUid();
 
         writeNewUser(user.getUid(), username, user.getEmail());
         Log.e(TAG , "onAuthSuccess is called!");
@@ -165,6 +166,8 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         Intent intent = getIntent();
         intent.putExtra("user_email",user.getEmail());
         intent.putExtra("user_name",username);
+        intent.putExtra("user_id",userID);
+
         setResult(RESULT_OK,intent);
         finish();
     }
