@@ -117,6 +117,7 @@ public class MainActivity extends AppCompatActivity
 
     private void init(){
 
+        //주석 추가
 
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
