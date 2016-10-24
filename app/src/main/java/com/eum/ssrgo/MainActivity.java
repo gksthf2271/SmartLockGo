@@ -118,10 +118,11 @@ public class MainActivity extends AppCompatActivity
     private void init(){
 
         //주석 추가
-        //ㅁㄴㅇㅁㄴㅇㅁㄴㅇ
+//ㅁㄴㅇㅁㄴㅇㅁㄴㅇ
         //주석 또 추가
         //주석 세번째
         //닥쳐
+        ///asdasdadsdasda
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
         tv_useremail = (TextView)navHeaderView.findViewById(R.id.tv_userEmail);
