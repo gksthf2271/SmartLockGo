@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity
 
     private double mySpeed;
     private boolean ridingState = true;
-    public List<Riding> riding_list = new ArrayList<Riding>();
+    public List<Riding> riding_list = new ArrayList<>();
 
 
     private DatabaseReference mDatabase;
@@ -198,9 +198,7 @@ public class MainActivity extends AppCompatActivity
                 //result가 ok인 경우
                 String email = data.getStringExtra("user_email");
                 String name = data.getStringExtra("user_name");
-                String userID = data.getStringExtra("user_id");
-
-                Log.e(TAG,"user ID : " + userID);
+                user_id = data.getStringExtra("user_id");
 
                 tv_userEmail.setText(email);
                 tv_userName.setText(name + "님 환영합니다.");
@@ -302,12 +300,20 @@ public class MainActivity extends AppCompatActivity
 
 
                 if(user_id != null) {
-                    mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+                    if(riding_list.size() != 0 ){
+                       // mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+                        mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue(riding_list.get(0));
+
+                    }else {
+
+                    Toast.makeText(MainActivity.this, "DATA upload : " + riding_list.get(0).latitude + riding_list.get(0).longitude + riding_list.size(), Toast.LENGTH_SHORT).show();
+
                     //riding list 초기화
                     riding_list = null;
 
                     //ridingState = riding fab flag변수임
                     ridingState = true;
+                    }
                 }
                 fab.setVisibility(View.VISIBLE);
             }
@@ -406,7 +412,7 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
 
-            Button btn = (Button) findViewById(R.id.btn_cancel);
+           /* Button btn = (Button) findViewById(R.id.btn_cancel);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -417,7 +423,7 @@ public class MainActivity extends AppCompatActivity
                     fab.setVisibility(View.VISIBLE);
 
                 }
-            });
+            });*/
 
 
         } else if (id == R.id.nav_search) {
@@ -556,6 +562,10 @@ public class MainActivity extends AppCompatActivity
         if (mCurrentLocation != null) {
             getLocationStatement(mCurrentLocation);
 
+            //테스트를 위해서 currentLocation을 list에 넣어준다(첫번째 데이터를 넣어서 list의 null값을 방지(
+            Riding riding = new Riding(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
+            riding_list.add(riding);
+
             Log.e(TAG, "mCurrentLocation Location Statement is Ready");
         } else Log.e(TAG, "mCurrentLocation is null!");
 
@@ -653,7 +663,6 @@ public class MainActivity extends AppCompatActivity
 
         LatLng CurrenLatLon = new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
 
-        ////////
 
         // double bef_lat; // 이전 경도
         double bef_lon; // 이전 위도
@@ -672,7 +681,7 @@ public class MainActivity extends AppCompatActivity
                         .add(thisLatLon).add(CurrenLatLon);
                 Polyline polyline = mMap.addPolyline(rectOptions);
 
-                Riding riding = new Riding();
+                Riding riding = new Riding(thisLat,thisLon);
 
                 //FireBaseTest(String userID, Double latitude, Double longitude);
                 FireBaseTest(riding.latitude, riding.longitude);
@@ -834,10 +843,7 @@ public class MainActivity extends AppCompatActivity
         String strNow = sdfNow.format(date);
 
         //라이딩 객체 init
-        riding.latitude = mCurrentLocation.getLatitude();
-        riding.longitude = mCurrentLocation.getLongitude();
         riding.time = strNow;
-
         riding_list.add(riding);
     }
 

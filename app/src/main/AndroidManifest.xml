@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.eum.ssrgo">
 
-
     <permission
         android:name="com.example.user.pagersample.locationapi.maps.permission.MAPS_RECEIVE"
         android:protectionLevel="signature" />
