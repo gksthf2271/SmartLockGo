@@ -8,6 +8,7 @@ public class User {
 
     public String username;
     public String email;
+    public String userId;
 
     public User() {
     }
@@ -17,5 +18,10 @@ public class User {
         this.email = email;
     }
 
+    public User(String username, String email, String userId) {
+        this.username = username;
+        this.email = email;
+        this.userId = userId;
+    }
 }
 // [END blog_user_class]
