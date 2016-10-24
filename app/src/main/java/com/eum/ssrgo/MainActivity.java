@@ -301,14 +301,14 @@ public class MainActivity extends AppCompatActivity
                 layout_ridingData.setVisibility(View.GONE);
 
 
-                if(user_id != null) mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+                if(user_id != null) {
+                    mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+                    //riding list 초기화
+                    riding_list = null;
 
-                //riding list 초기화
-                riding_list = null;
-
-                //ridingState = riding fab flag변수임
-                ridingState = true;
-
+                    //ridingState = riding fab flag변수임
+                    ridingState = true;
+                }
                 fab.setVisibility(View.VISIBLE);
             }
         });
