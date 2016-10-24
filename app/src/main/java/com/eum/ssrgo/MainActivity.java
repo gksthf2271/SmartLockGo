@@ -290,9 +290,23 @@ public class MainActivity extends AppCompatActivity
         }
 
 
-        //라이딩 종료 버튼
-        Button btn = (Button) findViewById(R.id.btn_cancel);
-        btn.setOnClickListener(new View.OnClickListener() {
+
+
+       /* mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                                       @Override
+                                       public void onMapClick(LatLng latLng) {
+
+                                           FireBaseTest(latLng.latitude,latLng.longitude);
+
+                                           mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time.toString()).setValue(riding_list);
+                                           Log.e(TAG, "riding_list : " +  riding_list.get(0).time.toString() +  riding_list.size());
+                                       }
+                                   });*/
+
+                //라이딩 종료 버튼
+
+                Button btn = (Button) findViewById(R.id.btn_cancel);
+            btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
@@ -304,8 +318,7 @@ public class MainActivity extends AppCompatActivity
                 if(user_id != null) {
                     if(riding_list.size() != 0 ){
                         mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
-                        //mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue(riding_list.get(0));
-                        //mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue("되냐?");
+
                         Log.e(TAG,"riding_list.get(0) : " + riding_list.get(0));
 
                     }else {
@@ -565,10 +578,6 @@ public class MainActivity extends AppCompatActivity
                 getLastLocation(mGoogleApiClient);
         if (mCurrentLocation != null) {
             getLocationStatement(mCurrentLocation);
-
-            //테스트를 위해서 currentLocation을 list에 넣어준다(첫번째 데이터를 넣어서 list의 null값을 방지(
-            Riding riding = new Riding(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude());
-            riding_list.add(riding);
 
             Log.e(TAG, "mCurrentLocation Location Statement is Ready");
         } else Log.e(TAG, "mCurrentLocation is null!");
