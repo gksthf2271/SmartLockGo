@@ -118,7 +118,7 @@ public class MainActivity extends AppCompatActivity
     private void init(){
 
         //로그인시 joinus는 hide, login은 text를 login에서 logout으로 변경
-
+        ////asd
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
         tv_useremail = (TextView)navHeaderView.findViewById(R.id.tv_userEmail);
