@@ -52,6 +52,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.SimpleDateFormat;
@@ -118,6 +119,7 @@ public class MainActivity extends AppCompatActivity
     //view init
     private void init() {
 
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView) navHeaderView.findViewById(R.id.tv_UserName);
@@ -301,8 +303,10 @@ public class MainActivity extends AppCompatActivity
 
                 if(user_id != null) {
                     if(riding_list.size() != 0 ){
-                       // mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
-                        mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue(riding_list.get(0));
+                        mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+                        //mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue(riding_list.get(0));
+                        //mDatabase.child("users").child("TEST").child("Riding").child("TEST").setValue("되냐?");
+                        Log.e(TAG,"riding_list.get(0) : " + riding_list.get(0));
 
                     }else {
 
