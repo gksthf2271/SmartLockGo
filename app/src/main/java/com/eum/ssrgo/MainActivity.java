@@ -119,6 +119,8 @@ public class MainActivity extends AppCompatActivity
 
         //주석 추가
         //ㅁㄴㅇㅁㄴㅇㅁㄴㅇ
+
+        //주석 세번째
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
         tv_useremail = (TextView)navHeaderView.findViewById(R.id.tv_userEmail);
