@@ -1,0 +1,71 @@
+{
+  "project_info": {
+    "project_number": "57842403227",
+    "firebase_url": "https://smartlockgo-147414.firebaseio.com",
+    "project_id": "smartlockgo-147414",
+    "storage_bucket": "smartlockgo-147414.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:57842403227:android:7407cffff52a3ddb",
+        "android_client_info": {
+          "package_name": "com.eum.ssrgo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "57842403227-hvfj5tsk2vdj3nu958kat5ka0m8phrvv.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eum.ssrgo",
+            "certificate_hash": "2420E9CC8EFE99E933EAD1041775620004CDE23B"
+          }
+        },
+        {
+          "client_id": "57842403227-2kejd3qj3eg2isle4kgvcge6tv7mlt1r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eum.ssrgo",
+            "certificate_hash": "0523307E1FAF54228A1521259A599B95F32E3591"
+          }
+        },
+        {
+          "client_id": "57842403227-pvigi44dot231rt66uuml7b2plk69gj3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.eum.ssrgo",
+            "certificate_hash": "4CD635D3A97590F41336FBC6758526E8DE4C746C"
+          }
+        },
+        {
+          "client_id": "57842403227-lhg02dosurit0trqlu8itv9ong4m0mtf.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCv00IZI7ArYItdTaYX1e_VFd1EumKPORY"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "57842403227-lhg02dosurit0trqlu8itv9ong4m0mtf.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

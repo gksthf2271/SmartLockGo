@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/layout_summaryData"
+        android:orientation="vertical"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="200dip">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="주행시간 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                    android:id="@+id/sum_ridingtime"
+                    android:layout_height="50dip"
+                    android:layout_width="110dip" />
+            <TextView
+                android:text="평균속도 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_avrspeed"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:text="휴    식 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_rest"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+
+            <TextView
+                android:text="최고속도 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_highspeed"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:text="전체시간 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_time"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+
+            <TextView
+                android:text="칼 로 리 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_calorie"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <TextView
+                android:text="거    리 : "
+                android:layout_height="50dip"
+                android:layout_width="80dip" />
+            <TextView
+                android:id="@+id/sum_distance"
+                android:layout_height="50dip"
+                android:layout_width="110dip" />
+        </LinearLayout>
+
+
+
+
+
+    </LinearLayout>
+
+</RelativeLayout>
+
