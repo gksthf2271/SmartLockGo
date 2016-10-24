@@ -121,7 +121,6 @@ public class MainActivity extends AppCompatActivity
         ////asd
         //주석추가
         //saddsa
-        //주석추가가가가가가가가가
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
         tv_useremail = (TextView)navHeaderView.findViewById(R.id.tv_userEmail);
