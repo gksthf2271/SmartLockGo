@@ -76,12 +76,6 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
     @Override
     public void onStart() {
         super.onStart();
-
-        // Check auth on Activity start
-        /*if (mAuth.getCurrentUser() != null) {
-            Log.e(TAG,"mAuth is already create");
-            onAuthSuccess(mAuth.getCurrentUser());
-        }*/
     }
 
     @Override
@@ -168,13 +162,15 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
 
     private void onAuthSuccess(FirebaseUser user) {
         String username = usernameFromEmail(user.getEmail());
-
-        writeNewUser(user.getUid(), username, user.getEmail());
+        String userID= user.getUid();
         Log.e(TAG , "onAuthSuccess is called!");
-
         Intent intent = getIntent();
         intent.putExtra("user_email",user.getEmail());
         intent.putExtra("user_name",username);
+
+        //유저아이디 추가
+        intent.putExtra("user_id",userID);
+
         setResult(RESULT_OK,intent);
         finish();
     }
@@ -205,21 +201,7 @@ public class SignInActivity extends BaseActivity implements View.OnClickListener
         return result;
     }
 
-    // [START basic_write]
-    private void writeNewUser(String userId, String name, String email) {
-        User user = new User(name, email);
-        //GEO정보를 활용하려면..
-        //child("RidingRecord").child(userId).child(RidingKey).setValue(Riding);
-        //RidingKey값은 userId처럼 자동 생성 및 고유한 KEY여야 한다.
-        //Riding 객체는 주행거리(시작점 / 끝점) 및 주행 시간이 저장되어야 한다.
-        //User 객체에 Module의 마지막 위치(주차위치)가 저장되어야 한다.
-
-        mDatabase.child("users").child(userId).setValue(user);
-    }
-    // [END basic_write]
-
     private void googleSignin() {
-
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
         Log.e(TAG,"googleSignin is completed! ");

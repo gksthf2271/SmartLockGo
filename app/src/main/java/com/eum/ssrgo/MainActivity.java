@@ -56,8 +56,8 @@ import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Date;
+import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     private long UPDATE_INTERVAL = 10000;  /* 10 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 sec */
+    private String user_id = null;
 
     //poly line
     private PolylineOptions polylineOptions;
@@ -104,35 +105,27 @@ public class MainActivity extends AppCompatActivity
     static int oldTime; // 타이머가 ON 되었을 때의 시각을 기억하고 있는 변수
 
 
-
     private long backKeyPressedTime = 0;
 
     private double mySpeed;
-    private boolean ridingState;
+    private boolean ridingState = true;
     public List<Riding> riding_list = new ArrayList<Riding>();
 
 
     private DatabaseReference mDatabase;
 
 
-    private void init(){
+    //view init
+    private void init() {
 
-        //주석 추가
-//ㅁㄴㅇㅁㄴㅇㅁㄴㅇ
-        //주석 또 추가
-        //주석 세번째
-        //닥쳐
-        ///asdasdadsdasda
+
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
-        tv_username = (TextView)navHeaderView.findViewById(R.id.tv_UserName);
-        tv_useremail = (TextView)navHeaderView.findViewById(R.id.tv_userEmail);
-        LinearLayout tv_layout = (LinearLayout)navHeaderView.findViewById(R.id.tv_Layout);
-        bt_joinus = (Button)navHeaderView.findViewById(R.id.bt_Join);
-        bt_login = (Button)navHeaderView.findViewById(R.id.bt_Login);
-        bt_logout = (Button)navHeaderView.findViewById(R.id.bt_Logout);
-
-
-
+        tv_username = (TextView) navHeaderView.findViewById(R.id.tv_UserName);
+        tv_useremail = (TextView) navHeaderView.findViewById(R.id.tv_userEmail);
+        LinearLayout tv_layout = (LinearLayout) navHeaderView.findViewById(R.id.tv_Layout);
+        bt_joinus = (Button) navHeaderView.findViewById(R.id.bt_Join);
+        bt_login = (Button) navHeaderView.findViewById(R.id.bt_Login);
+        bt_logout = (Button) navHeaderView.findViewById(R.id.bt_Logout);
 
         //tv_layout.setVisibility(View.INVISIBLE);
         Button.OnClickListener onClickListener = new Button.OnClickListener() {
@@ -145,8 +138,8 @@ public class MainActivity extends AppCompatActivity
                         startActivityForResult(intent_, requestcode);
                         break;
                     case R.id.bt_Login:
-                        Intent intent1 = new Intent(thiscontext,SignInActivity.class);
-                        startActivityForResult(intent1,requestcode);
+                        Intent intent1 = new Intent(thiscontext, SignInActivity.class);
+                        startActivityForResult(intent1, requestcode);
 
                         break;
                     case R.id.bt_Logout:
@@ -164,28 +157,27 @@ public class MainActivity extends AppCompatActivity
     }
 
     //로그인,로그아웃시에 VIEW를 바꿔주는 함수
-    private void setupView(String requestCode){
-        bt_joinus = (Button)findViewById(R.id.bt_Join);
-        bt_login = (Button)findViewById(R.id.bt_Login);
-        bt_logout = (Button)findViewById(R.id.bt_Logout);
+    private void setupView(String requestCode) {
+        bt_joinus = (Button) findViewById(R.id.bt_Join);
+        bt_login = (Button) findViewById(R.id.bt_Login);
+        bt_logout = (Button) findViewById(R.id.bt_Logout);
         LinearLayout layout_userInfo = (LinearLayout) findViewById(R.id.layout_userInfo);
 
 
-        if(requestCode == "LOGIN"){
+        if (requestCode == "LOGIN") {
             bt_joinus.setVisibility(View.GONE);
             bt_login.setVisibility(View.GONE);
             bt_logout.setVisibility(View.VISIBLE);
             layout_userInfo.setVisibility(View.VISIBLE);
 
-        }else if(requestCode == "LOGOUT"){
-            Log.e(TAG,"requestCode is LOGOUT");
+        } else if (requestCode == "LOGOUT") {
+            Log.e(TAG, "requestCode is LOGOUT");
             bt_joinus.setVisibility(View.VISIBLE);
             bt_login.setVisibility(View.VISIBLE);
             bt_logout.setVisibility(View.GONE);
             layout_userInfo.setVisibility(View.GONE);
 
-        }
-        else if (requestCode == "JOIN US") {
+        } else if (requestCode == "JOIN US") {
             bt_joinus.setVisibility(View.GONE);
             bt_login.setVisibility(View.GONE);
             bt_logout.setVisibility(View.VISIBLE);
@@ -193,33 +185,36 @@ public class MainActivity extends AppCompatActivity
 
         }
     }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data){
-        Log.e(TAG,"onActivityResult is called!");
-        if(resultCode == RESULT_OK){
-            if(requestCode == 1){
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e(TAG, "onActivityResult is called!");
+        if (resultCode == RESULT_OK) {
+            if (requestCode == 1) {
                 setupView("LOGIN");
-                TextView tv_userName = (TextView)findViewById(R.id.tv_UserName);
-                TextView tv_userEmail = (TextView)findViewById(R.id.tv_userEmail);
+                TextView tv_userName = (TextView) findViewById(R.id.tv_UserName);
+                TextView tv_userEmail = (TextView) findViewById(R.id.tv_userEmail);
 
                 //result가 ok인 경우
                 String email = data.getStringExtra("user_email");
                 String name = data.getStringExtra("user_name");
+                String userID = data.getStringExtra("user_id");
+
+                Log.e(TAG,"user ID : " + userID);
 
                 tv_userEmail.setText(email);
-                tv_userName.setText(name+"님 환영합니다.");
+                tv_userName.setText(name + "님 환영합니다.");
 
-            }else{
-                Log.e(TAG,"resultCode is "+resultCode);
+            } else {
+                Log.e(TAG, "resultCode is " + resultCode);
             }
         }
     }
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.e(TAG,"onCreate!");
+        Log.e(TAG, "onCreate!");
         super.onCreate(savedInstanceState);
 
 
@@ -237,6 +232,9 @@ public class MainActivity extends AppCompatActivity
                 startLocationUpdates();
                 //fab버튼누르면 라이딩으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_riding);
+
+                //fab flag변수
+                ridingState = false;
                 startRiding();
             }
         });
@@ -250,7 +248,7 @@ public class MainActivity extends AppCompatActivity
 
         navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        Log.e(TAG,"nav is ok");
+        Log.e(TAG, "nav is ok");
 
         timeThread();
 
@@ -262,25 +260,26 @@ public class MainActivity extends AppCompatActivity
         mGoogleApiClient.connect();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        Log.e(TAG,"mapFragment Async succeed!");
+        Log.e(TAG, "mapFragment Async succeed!");
 
 
         //GPS사용 여부 체크 후 GPS설정창 띄워줌
         LocationManager locationManager = (LocationManager) thiscontext.getSystemService(Context.LOCATION_SERVICE);
         boolean isGPSEnabled = locationManager.isProviderEnabled(locationManager.GPS_PROVIDER);
-        if (!isGPSEnabled){
+        if (!isGPSEnabled) {
             showSettingsAlert();
         }
         init();
     }
-    public void startRiding(){
+
+    public void startRiding() {
         final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
         layout_ridingData.setVisibility(View.VISIBLE);
         fab.setVisibility(View.GONE);
 
 
-        TextView txt_speed = (TextView)findViewById(R.id.txt_speed);
+        TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
         txt_speed.setText("Current Speed : " + mySpeed);
 
         if (speed_run == true) {
@@ -289,31 +288,30 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "Speed Thread end");
 
         }
-        //user.uid() => token
-        Riding riding = new Riding();
 
 
-
-/*        //FireBaseTest("3F2EkZC8iAgm57odinL8UFbjm1W2","Riding" , riding.latitude, riding.longitude);
-        FireBaseTest("Q2UYjvw7Z4aN8zn5ZKETiQ7WXDT2",riding.latitude ,riding.longitude ,riding.time);*/
-
-
-        /////
-
+        //라이딩 종료 버튼
         Button btn = (Button) findViewById(R.id.btn_cancel);
-        btn.setOnClickListener(new View.OnClickListener(){
+        btn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v){
+            public void onClick(View v) {
 
                 //fab버튼누르면 홈으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_home);
                 layout_ridingData.setVisibility(View.GONE);
-                fab.setVisibility(View.VISIBLE);
 
+
+                if(user_id != null) mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
+
+                //riding list 초기화
+                riding_list = null;
+
+                //ridingState = riding fab flag변수임
+                ridingState = true;
+
+                fab.setVisibility(View.VISIBLE);
             }
         });
-
-
 
     }
 
@@ -327,7 +325,6 @@ public class MainActivity extends AppCompatActivity
             Log.e("Permission ", " checkSelfPermission is unable");
         }
     }
-
 
 
     public void onBackPressed() {
@@ -355,7 +352,6 @@ public class MainActivity extends AppCompatActivity
         }
         d.show();
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -411,9 +407,9 @@ public class MainActivity extends AppCompatActivity
             fab.setVisibility(View.GONE);
 
             Button btn = (Button) findViewById(R.id.btn_cancel);
-            btn.setOnClickListener(new View.OnClickListener(){
+            btn.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(View v){
+                public void onClick(View v) {
 
                     //fab버튼누르면 홈으로 바뀜.
                     navigationView.setCheckedItem(R.id.nav_home);
@@ -433,8 +429,7 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
 
-        }
-        else if (id == R.id.nav_record_summary) {
+        } else if (id == R.id.nav_record_summary) {
             Log.e(TAG, "네비 기록요약 눌렸다!");
             final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
             final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
@@ -442,33 +437,29 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
-        }
-        else if (id == R.id.nav_record_height) {
+        } else if (id == R.id.nav_record_height) {
             navigationView.setCheckedItem(R.id.nav_record_height);
             final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
             final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
-        }
-        else if (id == R.id.nav_record_section) {
+        } else if (id == R.id.nav_record_section) {
             navigationView.setCheckedItem(R.id.nav_record_section);
             final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
             final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
-        }
-        else if (id == R.id.nav_record_section_info) {
+        } else if (id == R.id.nav_record_section_info) {
             navigationView.setCheckedItem(R.id.nav_record_section_info);
             final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
             final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
-        }
-        else if (id == R.id.nav_edit) {
-            Intent editintent = new Intent(thiscontext,EditActivity.class);
+        } else if (id == R.id.nav_edit) {
+            Intent editintent = new Intent(thiscontext, EditActivity.class);
             startActivity(editintent);
         }
 
@@ -488,8 +479,7 @@ public class MainActivity extends AppCompatActivity
 
         // Add a marker in Sydney and move the camera
         LatLng latLng = new LatLng(37.56, 126.97);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng,17));
-
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
 
 
         int permissionCheck = ContextCompat.checkSelfPermission(thiscontext, Manifest.permission.MAPS_RECEIVE);
@@ -513,15 +503,13 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
-    /*
-    *//**
+    /**
      * GPS 정보를 가져오지 못했을때
      * 설정값으로 갈지 물어보는 alert 창
-     * */
-    public void showSettingsAlert(){
+     */
+    public void showSettingsAlert() {
 
-        if(!MainActivity.this.isFinishing()) {
+        if (!MainActivity.this.isFinishing()) {
             android.app.AlertDialog.Builder alertDialog = new android.app.AlertDialog.Builder(MainActivity.this);
 
             alertDialog.setTitle("GPS 사용유무셋팅");
@@ -544,8 +532,7 @@ public class MainActivity extends AppCompatActivity
                     });
             alertDialog.show();
 
-            if(run==true)
-            {
+            if (run == true) {
                 run = false;
                 Log.e(TAG, "Thread end");
                 dialog.dismiss();
@@ -559,8 +546,6 @@ public class MainActivity extends AppCompatActivity
         Log.e(TAG, "onConnected!");
         // 여기까지 지도 좌표찍힌것
 
-
-
         setLocationRequest();
 
         if (ContextCompat.checkSelfPermission(thiscontext, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -568,11 +553,11 @@ public class MainActivity extends AppCompatActivity
         }
         mCurrentLocation = LocationServices.FusedLocationApi.
                 getLastLocation(mGoogleApiClient);
-        if(mCurrentLocation != null){
+        if (mCurrentLocation != null) {
             getLocationStatement(mCurrentLocation);
 
-            Log.e(TAG,"mCurrentLocation Location Statement is Ready");
-        }else Log.e(TAG,"mCurrentLocation is null!");
+            Log.e(TAG, "mCurrentLocation Location Statement is Ready");
+        } else Log.e(TAG, "mCurrentLocation is null!");
 
     }
 
@@ -597,7 +582,7 @@ public class MainActivity extends AppCompatActivity
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
         //속도가 있을때만 찍으면 이동중일때만 onLocationChanged를 handling 할 수 있다
-        if(location.getSpeed()!=0){
+        if (location.getSpeed() != 0) {
 
             mySpeed = location.getSpeed() * 3.6;
             Toast.makeText(thiscontext, "SPEED is " + location.getSpeed() * 3.6, Toast.LENGTH_SHORT).show();
@@ -606,7 +591,7 @@ public class MainActivity extends AppCompatActivity
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 19));
             mMap.animateCamera(CameraUpdateFactory.zoomTo(19), 2000, null);
         }
-        if(location.getSpeed() == 0) {
+        if (location.getSpeed() == 0) {
             mySpeed = 0;
         }
 
@@ -622,15 +607,14 @@ public class MainActivity extends AppCompatActivity
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentPosition, 17));
         mMap.animateCamera(CameraUpdateFactory.zoomTo(17), 2000, null);
 
-        if(run==true)
-        {
+        if (run == true) {
             run = false;
             Log.e(TAG, "Thread end");
             dialog.dismiss();
         }
 
         //최초 circle은 안보이게 설정 해둠. 실제로 구현할때도 visible은 false로 되어야 함
-        LatLng latlng = new LatLng(location.getLatitude(),location.getLongitude());
+        LatLng latlng = new LatLng(location.getLatitude(), location.getLongitude());
         CircleOptions Min_circleOptions = new CircleOptions()
                 .center(latlng)
                 .radius(2)
@@ -675,9 +659,6 @@ public class MainActivity extends AppCompatActivity
         double bef_lon; // 이전 위도
         double dist; // 거리 (현재위치 - 이전위치) 거리*//*
 
-
-        //provider와 speed, 그리고 getTime을 통한 3중 검증 함수 구현할것.
-        //조건1. lastLocation의 위치와 현재 넘어온 위치값이 달라야함
         if (CurrentLat != thisLat) {
             if (CurrentLon != thisLon) {
                 Log.e(TAG, "Location data is not same");
@@ -687,61 +668,14 @@ public class MainActivity extends AppCompatActivity
                 Log.e("나의 gps1", String.valueOf(min_distance));
 
 
-
                 PolylineOptions rectOptions = new PolylineOptions()
                         .add(thisLatLon).add(CurrenLatLon);
                 Polyline polyline = mMap.addPolyline(rectOptions);
 
-                // thisLatLon = CurrenLatLon; // 흠.... 흠...;; 어카지;;
-
                 Riding riding = new Riding();
 
-
-
-                //FireBaseTest("3F2EkZC8iAgm57odinL8UFbjm1W2","Riding" , riding.latitude, riding.longitude);
-                FireBaseTest("Q2UYjvw7Z4aN8zn5ZKETiQ7WXDT2",riding.latitude ,riding.longitude ,riding.time);
-
-
-//                if (thisLatLon != befLatLon) {
-
-
-                //
-//                    PolylineOptions rectOptions = new PolylineOptions()
-//                            .add(thisLatLon).add(CurrenLatLon);
-//                    Polyline polyline = mMap.addPolyline(rectOptions);
-
-                //
-//
-//                }
-//                else
-//                {
-//                    PolylineOptions rectOptions = new PolylineOptions()
-//                            .add(befLatLon).add(CurrenLatLon);
-//                    Polyline polyline = mMap.addPolyline(rectOptions);
-//                }
-//
-//                if(thisLatLon != befLatLon) {
-//                    befLatLon = CurrenLatLon;
-//                }
-
-                double distance;
-
-                Location locationA = new Location("point A");
-
-                locationA.setLatitude(CurrentLat);
-                locationA.setLongitude(CurrentLon);
-
-                Location locationB = new Location("point B");
-
-                locationB.setLatitude(thisLat);
-                locationB.setLongitude(thisLon);
-
-                distance = locationA.distanceTo(locationB);
-
-
-                Log.e("나의 gps2", String.valueOf(distance));
-
-                CurrenLatLon = thisLatLon;
+                //FireBaseTest(String userID, Double latitude, Double longitude);
+                FireBaseTest(riding.latitude, riding.longitude);
 
                 mCurrentLocation.setLatitude(location.getLatitude());
                 mCurrentLocation.setLongitude(location.getLongitude());
@@ -808,11 +742,11 @@ public class MainActivity extends AppCompatActivity
 
 
     //location의 각종 정보를 LOGGING
-    public void getLocationStatement(Location location){
-        Log.e(TAG,"==========================================================================");
+    public void getLocationStatement(Location location) {
+        Log.e(TAG, "==========================================================================");
         Log.e(TAG, "Lon :" + location.getLongitude() + "  // Lat:" + location.getLatitude() + "  // Provider:" + location.getProvider() + "  // Speed:" + mySpeed);
         Log.e(TAG, "Accuracy:" + location.getAccuracy() + "  // Time:" + location.getTime() + "  // Bearing:" + location.getBearing()); // bearing = heading to location
-        Log.e(TAG,"==========================================================================");
+        Log.e(TAG, "==========================================================================");
     }
 
 
@@ -828,6 +762,7 @@ public class MainActivity extends AppCompatActivity
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
     public void timeThread() {
         dialog = new ProgressDialog(MainActivity.this);
         dialog.setTitle("Wait...");
@@ -837,7 +772,7 @@ public class MainActivity extends AppCompatActivity
         dialog.show();
         new Thread(new Runnable() {
             public void run() {
-                while(run==true) {
+                while (run == true) {
                     // TODO Auto-generated method stub
                     try {
                         Thread.sleep(10000);
@@ -871,13 +806,10 @@ public class MainActivity extends AppCompatActivity
         public void handleMessage(Message msg) {
 
 
-
             TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
             txt_speed.setText("Current Speed : " + mySpeed);
         }
     };
-
-
 
 
     /*private void FireBaseTest(String userId, String Riding, Float latitude, Float longitude) {
@@ -890,37 +822,23 @@ public class MainActivity extends AppCompatActivity
 
         mDatabase.child("users").child(userId).child(Riding).setValue(riding);
     }*/
-    private void FireBaseTest(String userID, Double latitude, Double longitude,String time) {
-        Riding riding = new Riding(latitude, longitude, time);
-        //GEO정보를 활용하려면..
-        //child("RidingRecord").child(userId).child(RidingKey).setValue(Riding);
-        //RidingKey값은 userId처럼 자동 생성 및 고유한 KEY여야 한다.
-        //Riding 객체는 주행거리(시작점 / 끝점) 및 주행 시간이 저장되어야 한다.
-        //User 객체에 Module의 마지막 위치(주차위치)가 저장되어야 한다.
 
-        riding.latitude = mCurrentLocation.getLatitude();
-        riding.longitude = mCurrentLocation.getLongitude();
 
-        riding_list.add(riding);
+    private void FireBaseTest(Double latitude, Double longitude) {
 
-        long now = System.currentTimeMillis();
+        Riding riding = new Riding(latitude, longitude);
 
-        Date date = new Date(now);
-
+        //날짜 format 변경 해주는 부분
         SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date(System.currentTimeMillis());
         String strNow = sdfNow.format(date);
 
+        //라이딩 객체 init
+        riding.latitude = mCurrentLocation.getLatitude();
+        riding.longitude = mCurrentLocation.getLongitude();
         riding.time = strNow;
 
-
-        if(ridingState == false) {
-            mDatabase.child("users").child(userID).child("Riding").child(riding.time).setValue(riding_list);
-
-            List<Riding> riding_list = new ArrayList<Riding>();
-
-
-            ridingState = true;
-        }
+        riding_list.add(riding);
     }
 
 
