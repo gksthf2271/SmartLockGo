@@ -313,7 +313,7 @@ public class MainActivity extends AppCompatActivity
                 //fab버튼누르면 홈으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_home);
                 layout_ridingData.setVisibility(View.GONE);
-
+                mMap.clear();
 
                 if(user_id != null) {
                     if(riding_list.size() != 0 ){
