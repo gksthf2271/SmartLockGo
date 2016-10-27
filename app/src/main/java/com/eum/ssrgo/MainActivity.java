@@ -10,6 +10,7 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -51,8 +52,12 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.SimpleDateFormat;
@@ -120,6 +125,7 @@ public class MainActivity extends AppCompatActivity
     private void init() {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
+
 
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView) navHeaderView.findViewById(R.id.tv_UserName);
@@ -282,6 +288,10 @@ public class MainActivity extends AppCompatActivity
         TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
         txt_speed.setText("Current Speed : " + mySpeed);
 
+        //Database GET TEST
+        String ret = mDatabase.child("users").child("TEST").child("Riding").child("2016").child("10").toString();
+        Log.e(TAG,"child 10 data is : " + ret);
+
         if (speed_run == true) {
             /*speed_run = false;*/
 
@@ -317,6 +327,7 @@ public class MainActivity extends AppCompatActivity
 
                 if(user_id != null) {
                     if(riding_list.size() != 0 ){
+
                         mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time).setValue(riding_list);
 
                         Log.e(TAG,"riding_list.get(0) : " + riding_list.get(0));
@@ -524,6 +535,8 @@ public class MainActivity extends AppCompatActivity
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
 
+        //테스트
+        testData_fromDB();
     }
 
     /**
@@ -887,6 +900,68 @@ public class MainActivity extends AppCompatActivity
             secToHHMMSS(  ((int) System.currentTimeMillis() / 1000) - oldTime  );
 
     }*/
+    private void testData_fromDB(){
+        //String myUserId = getUid();
+        //DB중에서 검색할 날짜를 받아서 child에 넣어줘야함 현재는 25 05:49:17
+        Query myTopPostsQuery = mDatabase.child("users").child("TEST").child("Riding").child("2016").child("10").orderByChild("25 05:49:17");
+
+        myTopPostsQuery.addChildEventListener(new ChildEventListener() {
+
+            @Override
+            //String = 마지막 키값
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }
