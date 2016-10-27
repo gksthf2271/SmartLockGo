@@ -904,6 +904,7 @@ public class MainActivity extends AppCompatActivity
         //String myUserId = getUid();
         //DB중에서 검색할 날짜를 받아서 child에 넣어줘야함 현재는 25 05:49:17
         Query myTopPostsQuery = mDatabase.child("users").child("TEST").child("Riding").child("2016").child("10").orderByChild("25 05:49:17");
+        //test
 
         myTopPostsQuery.addChildEventListener(new ChildEventListener() {
 
