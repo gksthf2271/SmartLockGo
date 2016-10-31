@@ -246,6 +246,8 @@ public class DeviceControlActivity extends Activity {
     // Demonstrates how to iterate through the supported GATT Services/Characteristics.
     // In this sample, we populate the data structure that is bound to the ExpandableListView
     // on the UI.
+    // BLE속성 읽기
+    //앱이 GATT 서버에 연결하고 서비스를 찾게 되면 속성을  읽고/쓸수 있게 된다. 다음 코드는 서비스와 특성들을 나열하여 표시해준다.
     private void displayGattServices(List<BluetoothGattService> gattServices) {
         if (gattServices == null) return;
         String uuid = null;
@@ -280,7 +282,9 @@ public class DeviceControlActivity extends Activity {
                 currentCharaData.put(
                         LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
                 currentCharaData.put(LIST_UUID, uuid);
+                Log.e("currentCharaData : ", String.valueOf(currentCharaData));
                 gattCharacteristicGroupData.add(currentCharaData);
+
             }
             mGattCharacteristics.add(charas);
             gattCharacteristicData.add(gattCharacteristicGroupData);

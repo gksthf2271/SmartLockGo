@@ -55,9 +55,20 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Intent blue_intent = getIntent();
         super.onCreate(savedInstanceState);
         getActionBar().setTitle(R.string.title_devices);
+/*        setContentView(R.layout.app_bar_main);
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        RelativeLayout layout = (RelativeLayout) findViewById(R.layout.content_main);
+        TextView TV = (TextView) findViewById(R.id.text1);
+        fab.setVisibility(View.GONE);
+        layout.setVisibility(View.GONE);
+        TV.setVisibility(View.VISIBLE);
+        setListAdapter(new ArrayAdapter<String>(this,
+                R.layout.list_layout,
+                (List<String>) mLeDeviceListAdapter));*/
+
         mHandler = new Handler();
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -87,12 +98,12 @@ public class DeviceScanActivity extends ListActivity {
             if (!mScanning) {
                 menu.findItem(R.id.menu_stop).setVisible(false);
                 menu.findItem(R.id.menu_scan).setVisible(true);
-                menu.findItem(R.id.menu_refresh).setActionView(null);
+/*                menu.findItem(R.id.menu_refresh).setActionView(null);*/
             } else {
                 menu.findItem(R.id.menu_stop).setVisible(true);
                 menu.findItem(R.id.menu_scan).setVisible(false);
-                menu.findItem(R.id.menu_refresh).setActionView(
-                        R.layout.actionbar_indeterminate_progress);
+     /*           menu.findItem(R.id.menu_refresh).setActionView(
+                        R.layout.actionbar_indeterminate_progress);*/
             }
             return true;
     }
@@ -180,6 +191,7 @@ public class DeviceScanActivity extends ListActivity {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
+
         invalidateOptionsMenu();
     }
 
@@ -194,6 +206,7 @@ public class DeviceScanActivity extends ListActivity {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
+
         }
 
         public void addDevice(BluetoothDevice device) {

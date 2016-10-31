@@ -21,7 +21,6 @@
 
     <!--블루투스 -->
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
-
     <uses-permission android:name="android.permission.BLUETOOTH"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
     <application
@@ -46,7 +45,6 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -77,6 +75,8 @@
             android:exported="true"
             >
         </activity>
+        <activity android:name=".ble.DeviceControlActivity"></activity>
+        <activity android:name=".ble.DeviceScanActivity"></activity>
     </application>
 
 </manifest>

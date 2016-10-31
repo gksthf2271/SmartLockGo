@@ -141,6 +141,10 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
         } else {
+/*            Intent broadcastUpdate = getIntent();
+            String name = broadcastUpdate.getStringExtra("getname");
+            int num = broadcastUpdate.getIntExtra("rssi");*/
+
             Log.d(TAG, "STEP2");
             // For all other profiles, writes the data formatted in HEX.
             final byte[] data = characteristic.getValue();
@@ -150,9 +154,9 @@ public class BluetoothLeService extends Service {
                 for(byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-                Log.d(TAG, String.valueOf(data));
+                Log.d(TAG, "inputdata"+String.valueOf(data));
 
-                String a = "KHS";
+                String a = "khs";
                 byte[] tx = a.getBytes();
 
 
@@ -165,6 +169,8 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
         Log.d(TAG, "STEP4");
     }
+
+
 
     public class LocalBinder extends Binder {
         BluetoothLeService getService()
@@ -249,6 +255,7 @@ public class BluetoothLeService extends Service {
         }
         // We want to directly connect to the device, so we are setting the autoConnect
         // parameter to false.
+        //BLE device를 GATT 서버 호스트로 연결, BluetoothGatt 인스턴스를 반환.
         mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
         Log.d(TAG, "Trying to create a new connection.");
         mBluetoothDeviceAddress = address;

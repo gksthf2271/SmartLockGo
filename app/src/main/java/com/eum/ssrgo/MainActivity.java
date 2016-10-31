@@ -13,7 +13,6 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.ContactsContract;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -39,7 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.eum.ssrgo.ble.DeviceScanActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -71,7 +69,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity
@@ -226,6 +223,7 @@ public class MainActivity extends AppCompatActivity
         //setListAdapter(mLeDeviceListAdapter);
         scanLeDevice(true);
 
+
     }
 
     @Override
@@ -320,6 +318,8 @@ public class MainActivity extends AppCompatActivity
         if (!isGPSEnabled) {
             showSettingsAlert();
         }
+/*        Intent ble_intent = new Intent(this, DeviceScanActivity.class);
+        startActivity(ble_intent);*/
         init();
         scanLeDevice(true);
     }
@@ -457,17 +457,33 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.main, menu);
+        if (!mScanning) {
+            menu.findItem(R.id.menu_stop).setVisible(false);
+            menu.findItem(R.id.menu_scan).setVisible(true);
+/*            menu.findItem(R.id.menu_refresh).setActionView(null);*/
+        } else {
+            menu.findItem(R.id.menu_stop).setVisible(true);
+            menu.findItem(R.id.menu_scan).setVisible(false);
+/*            menu.findItem(R.id.menu_refresh).setActionView(
+                    R.layout.actionbar_indeterminate_progress);*/
+        }
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            return true;
+        switch (item.getItemId()) {
+            case R.id.menu_scan:
+                Log.d("메뉴 scan 클릭","");
+                mLeDeviceListAdapter.clear();
+                scanLeDevice(true);
+                break;
+            case R.id.menu_stop:
+                Log.d("메뉴 stop 클릭","");
+                scanLeDevice(false);
+                break;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -970,13 +986,20 @@ public class MainActivity extends AppCompatActivity
             new BluetoothAdapter.LeScanCallback() {
 
                 @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+                public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             mLeDeviceListAdapter.addDevice(device);
                             mLeDeviceListAdapter.notifyDataSetChanged();
                             Log.e(TAG, "onLeScan is called! " + device.getName());
+/*                            if(rssi> -80)
+                            {
+                                Intent broadcastUpdate = new Intent(thiscontext, BluetoothLeService.class);
+                                broadcastUpdate.putExtra("getname",device.getName());
+                                broadcastUpdate.putExtra("rssi",rssi);
+                                startActivity(broadcastUpdate);
+                            }*/
                         }
                     });
                 }
@@ -1061,28 +1084,29 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public View getView(int i, View view, ViewGroup viewGroup) {
-            /*DeviceScanActivity.ViewHolder viewHolder;
+            ViewHolder viewHolder;
             // General ListView optimization code.
             if (view == null) {
                 view = mInflator.inflate(R.layout.listitem_device, null);
-                viewHolder = new DeviceScanActivity.ViewHolder();
+                viewHolder = new ViewHolder();
                 viewHolder.deviceAddress = (TextView) view.findViewById(R.id.device_address);
                 viewHolder.deviceName = (TextView) view.findViewById(R.id.device_name);
                 view.setTag(viewHolder);
             } else {
-                viewHolder = (DeviceScanActivity.ViewHolder) view.getTag();
+                viewHolder = (ViewHolder) view.getTag();
             }
 
-            BluetoothDevice device = mLeDevices.get(i);*/
+            BluetoothDevice device = mLeDevices.get(i);
 
-            /*final String deviceName = device.getName();
+            final String deviceName = device.getName();
             if (deviceName != null && deviceName.length() > 0)
                 viewHolder.deviceName.setText(deviceName);
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
-                viewHolder.deviceAddress.setText(device.getAddress());*/
+                viewHolder.deviceAddress.setText(device.getAddress());
 
             return view;
         }
     }
+
 }
