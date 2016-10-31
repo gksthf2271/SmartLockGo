@@ -1,19 +1,4 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.eum.ssrgo.ble;
 
 import android.app.Activity;
@@ -40,9 +25,8 @@ import com.eum.ssrgo.R;
 
 import java.util.ArrayList;
 
-/**
- * Activity for scanning and displaying available Bluetooth LE devices.
- */
+
+
 public class DeviceScanActivity extends ListActivity {
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
@@ -57,9 +41,10 @@ public class DeviceScanActivity extends ListActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getActionBar().setTitle(R.string.title_devices);
-/*        setContentView(R.layout.app_bar_main);
+        setContentView(R.layout.app_bar_main);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+  */
+/*      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         RelativeLayout layout = (RelativeLayout) findViewById(R.layout.content_main);
         TextView TV = (TextView) findViewById(R.id.text1);
         fab.setVisibility(View.GONE);
@@ -67,7 +52,9 @@ public class DeviceScanActivity extends ListActivity {
         TV.setVisibility(View.VISIBLE);
         setListAdapter(new ArrayAdapter<String>(this,
                 R.layout.list_layout,
-                (List<String>) mLeDeviceListAdapter));*/
+                (List<String>) mLeDeviceListAdapter));*//*
+
+
 
         mHandler = new Handler();
 
@@ -98,12 +85,14 @@ public class DeviceScanActivity extends ListActivity {
             if (!mScanning) {
                 menu.findItem(R.id.menu_stop).setVisible(false);
                 menu.findItem(R.id.menu_scan).setVisible(true);
-/*                menu.findItem(R.id.menu_refresh).setActionView(null);*/
+                menu.findItem(R.id.menu_refresh).setActionView(null);
+
             } else {
                 menu.findItem(R.id.menu_stop).setVisible(true);
                 menu.findItem(R.id.menu_scan).setVisible(false);
-     /*           menu.findItem(R.id.menu_refresh).setActionView(
-                        R.layout.actionbar_indeterminate_progress);*/
+           menu.findItem(R.id.menu_refresh).setActionView(
+                        R.layout.actionbar_indeterminate_progress);
+
             }
             return true;
     }
@@ -158,7 +147,7 @@ public class DeviceScanActivity extends ListActivity {
         mLeDeviceListAdapter.clear();
     }
 
-    @Override
+  @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
@@ -171,6 +160,7 @@ public class DeviceScanActivity extends ListActivity {
         }
         startActivity(intent);
     }
+
 
     // Scan 시작
     private void scanLeDevice(final boolean enable) {
@@ -285,3 +275,4 @@ public class DeviceScanActivity extends ListActivity {
         TextView deviceAddress;
     }
 }
+*/

@@ -38,6 +38,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.eum.ssrgo.ble.DeviceControlActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -69,6 +70,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.UUID;
 
 
 public class MainActivity extends AppCompatActivity
@@ -79,6 +81,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static Context thiscontext;
+
     //map
     private MapFragment mMapFragment;
     private GoogleMap mMap;
@@ -112,7 +115,6 @@ public class MainActivity extends AppCompatActivity
     //TEST . BLE 스캔 관련
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
-    private boolean mScanning;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 10000;
 
@@ -133,6 +135,9 @@ public class MainActivity extends AppCompatActivity
 
     private DatabaseReference mDatabase;
 
+    private boolean mScanning;
+
+
     //view init
     private void init() {
 
@@ -146,6 +151,8 @@ public class MainActivity extends AppCompatActivity
         bt_joinus = (Button) navHeaderView.findViewById(R.id.bt_Join);
         bt_login = (Button) navHeaderView.findViewById(R.id.bt_Login);
         bt_logout = (Button) navHeaderView.findViewById(R.id.bt_Logout);
+
+
 
         //tv_layout.setVisibility(View.INVISIBLE);
         Button.OnClickListener onClickListener = new Button.OnClickListener() {
@@ -263,6 +270,9 @@ public class MainActivity extends AppCompatActivity
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if(mBluetoothAdapter.isEnabled()) Log.e (TAG,"BluetoothAdapter is enbled!!");
         if(mBluetoothAdapter == null) Log.e("TAG","Bluetooth adapter is null");
+
+
+
         /////////
 
         thiscontext = getApplicationContext();
@@ -318,13 +328,14 @@ public class MainActivity extends AppCompatActivity
         if (!isGPSEnabled) {
             showSettingsAlert();
         }
-/*        Intent ble_intent = new Intent(this, DeviceScanActivity.class);
-        startActivity(ble_intent);*/
         init();
         scanLeDevice(true);
     }
 
     private void scanLeDevice(final boolean enable) {
+        UUID[] uuid = new UUID[1];
+        uuid[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+
             if (enable) {
                 Log.e(TAG,"ScanLeDevice is called!");
                 // Stops scanning after a pre-defined scan period.
@@ -338,10 +349,7 @@ public class MainActivity extends AppCompatActivity
 
                 mScanning = true;
 
-                //UUID[] uuids = new UUID[1];
-                //uuids[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
-
-                mBluetoothAdapter.startLeScan(null, mLeScanCallback);
+                mBluetoothAdapter.startLeScan(mLeScanCallback);
             } else {
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -457,16 +465,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        getMenuInflater().inflate(R.menu.main, menu);
         if (!mScanning) {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_scan).setVisible(true);
-/*            menu.findItem(R.id.menu_refresh).setActionView(null);*/
+            menu.findItem(R.id.menu_refresh).setActionView(null);
         } else {
             menu.findItem(R.id.menu_stop).setVisible(true);
             menu.findItem(R.id.menu_scan).setVisible(false);
-/*            menu.findItem(R.id.menu_refresh).setActionView(
-                    R.layout.actionbar_indeterminate_progress);*/
+            menu.findItem(R.id.menu_refresh).setActionView(
+                    R.layout.actionbar_indeterminate_progress);
         }
         return true;
     }
@@ -494,12 +501,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         Fragment fragment = null;
+        final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
+        final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
         if (id == R.id.nav_home) {
             Log.e(TAG, "네비 홈 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_home);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
@@ -516,8 +523,6 @@ public class MainActivity extends AppCompatActivity
             });
         } else if (id == R.id.nav_riding) {
             Log.e(TAG, "네비 라이딩 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             navigationView.setCheckedItem(R.id.nav_riding);
             layout_ridingData.setVisibility(View.VISIBLE);
             layout_summaryData.setVisibility(View.GONE);
@@ -539,8 +544,6 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_search) {
             Log.e(TAG, "네비 길찾기 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             navigationView.setCheckedItem(R.id.nav_search);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
@@ -548,30 +551,22 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_summary) {
             Log.e(TAG, "네비 기록요약 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             navigationView.setCheckedItem(R.id.nav_record_summary);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
         } else if (id == R.id.nav_record_height) {
             navigationView.setCheckedItem(R.id.nav_record_height);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
         } else if (id == R.id.nav_record_section) {
             navigationView.setCheckedItem(R.id.nav_record_section);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
         } else if (id == R.id.nav_record_section_info) {
             navigationView.setCheckedItem(R.id.nav_record_section_info);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
@@ -616,6 +611,7 @@ public class MainActivity extends AppCompatActivity
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
+
 
         mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
@@ -985,6 +981,17 @@ public class MainActivity extends AppCompatActivity
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
 
+/*                    final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
+                    if (device == null) return;
+                    final Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
+                    intent.putExtra("DeviceControlActivity.EXTRAS_DEVICE_NAME", device.getName());
+                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                    if (mScanning) {
+                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                        mScanning = false;
+                    }
+                    startActivity(intent);*/
+
                 @Override
                 public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
                     runOnUiThread(new Runnable() {
@@ -993,9 +1000,18 @@ public class MainActivity extends AppCompatActivity
                             mLeDeviceListAdapter.addDevice(device);
                             mLeDeviceListAdapter.notifyDataSetChanged();
                             Log.e(TAG, "onLeScan is called! " + device.getName());
+
+
+                                final Intent intent = new Intent(MainActivity.this, DeviceControlActivity.class);
+                                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+                                intent.putExtra(String.valueOf(DeviceControlActivity.EXTRAS_DEVICE_RSSI), rssi);
+                                intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                                  Log.d("rssi 값 : ", String.valueOf(rssi));
+                                startActivity(intent);
+
 /*                            if(rssi> -80)
                             {
-                                Intent broadcastUpdate = new Intent(thiscontext, BluetoothLeService.class);
+                                Intent broadcastUpdate = new Intent(MainActivity.this, BluetoothLeService.class);
                                 broadcastUpdate.putExtra("getname",device.getName());
                                 broadcastUpdate.putExtra("rssi",rssi);
                                 startActivity(broadcastUpdate);
@@ -1104,7 +1120,6 @@ public class MainActivity extends AppCompatActivity
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
                 viewHolder.deviceAddress.setText(device.getAddress());
-
             return view;
         }
     }
