@@ -154,10 +154,12 @@ public class BluetoothLeService extends Service {
                 Log.d(TAG, "inputdata"+String.valueOf(data));
 
                 String go = "s";
-                String stop ="g";
-                String back = "b";
+                String go_stop ="g";
+                String back = "gb";
+                String back_stop = "sg";
 
-                byte[] tx = go.getBytes();
+
+                byte[] tx = back.getBytes();
 
 
                 characteristic.setValue(tx);

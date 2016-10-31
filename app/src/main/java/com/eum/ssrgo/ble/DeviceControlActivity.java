@@ -162,10 +162,12 @@ public class DeviceControlActivity extends Activity {
         setContentView(R.layout.gatt_services_characteristics);
 
         final Intent intent = getIntent();
-        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
-        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
+        mDeviceName = intent.getStringExtra(mDeviceName);
+        mDeviceAddress = intent.getStringExtra(mDeviceAddress);
         mRSSI = intent.getIntExtra("EXTRAS_DEVICE_RSSI",mRSSI);
-        Log.d("rssi 값 :", String.valueOf(mRSSI));
+ /*       Log.d("NAME 값 :", String.valueOf(mDeviceName));
+        Log.d("주소 값 :", String.valueOf(mDeviceAddress));
+        Log.d("rssi 값 :", String.valueOf(mRSSI));*/
 
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
@@ -267,7 +269,8 @@ public class DeviceControlActivity extends Activity {
         for (BluetoothGattService gattService : gattServices) {
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
-            uuid = ("0000ffe1-0000-1000-8000-00805f9b34fb");
+/*        승준이형꺼    uuid = ("0000ffe1-0000-1000-8000-00805f9b34fb");*/
+            uuid = ("0B8BECE3-F274-44A6-8CD2-089490B30623");
             currentServiceData.put(
                     LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
             currentServiceData.put(LIST_UUID, uuid);

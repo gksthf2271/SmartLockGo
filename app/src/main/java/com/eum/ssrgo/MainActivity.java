@@ -333,7 +333,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void scanLeDevice(final boolean enable) {
-        UUID[] uuid = new UUID[2];
+        UUID[] uuid = new UUID[1];
 /*        uuid[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");*/
         uuid[0] = UUID.fromString("0B8BECE3-F274-44A6-8CD2-089490B30623");
             if (enable) {
