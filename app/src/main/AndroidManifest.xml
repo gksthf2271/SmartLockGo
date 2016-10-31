@@ -57,6 +57,9 @@
             android:exported="true">
 
         </activity>
+        <activity android:name="ble.DeviceScanActivity"/>
+        <activity android:name="ble.DeviceControlActivity"/>
+        <service android:name="ble.BluetoothLeService" android:enabled="true"/>
 
         <activity
             android:theme="@style/Theme.AppCompat.Light.Dialog"
