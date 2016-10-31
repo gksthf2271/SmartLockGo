@@ -153,8 +153,11 @@ public class BluetoothLeService extends Service {
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
                 Log.d(TAG, "inputdata"+String.valueOf(data));
 
-                String a = "khs";
-                byte[] tx = a.getBytes();
+                String go = "s";
+                String stop ="g";
+                String back = "b";
+
+                byte[] tx = go.getBytes();
 
 
                 characteristic.setValue(tx);

@@ -165,6 +165,7 @@ public class DeviceControlActivity extends Activity {
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
         mRSSI = intent.getIntExtra("EXTRAS_DEVICE_RSSI",mRSSI);
+        Log.d("rssi 값 :", String.valueOf(mRSSI));
 
         // Sets up UI references.
         ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
@@ -264,13 +265,13 @@ public class DeviceControlActivity extends Activity {
 
         // Loops through available GATT Services.
         for (BluetoothGattService gattService : gattServices) {
-      /*      HashMap<String, String> currentServiceData = new HashMap<String, String>();*/
-            /*uuid = gattService.getUuid().toString();*/
-   /*         uuid = ("0000ffe1-0000-1000-8000-00805f9b34fb");*/
-           /* currentServiceData.put(
+            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            uuid = gattService.getUuid().toString();
+            uuid = ("0000ffe1-0000-1000-8000-00805f9b34fb");
+            currentServiceData.put(
                     LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
             currentServiceData.put(LIST_UUID, uuid);
-            gattServiceData.add(currentServiceData);*/
+            gattServiceData.add(currentServiceData);
 
             ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
                     new ArrayList<HashMap<String, String>>();
@@ -289,7 +290,6 @@ public class DeviceControlActivity extends Activity {
                 currentCharaData.put(LIST_UUID, uuid);
                 Log.e("currentCharaData : ", String.valueOf(currentCharaData));
                 gattCharacteristicGroupData.add(currentCharaData);
-
             }
             mGattCharacteristics.add(charas);
             gattCharacteristicData.add(gattCharacteristicGroupData);
