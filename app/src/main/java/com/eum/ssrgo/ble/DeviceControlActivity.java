@@ -95,6 +95,8 @@ public class DeviceControlActivity extends Activity {
     // ACTION_GATT_SERVICES_DISCOVERED: discovered GATT services.
     // ACTION_DATA_AVAILABLE: received data from the device.  This can be a result of read
     //                        or notification operations.
+
+
     private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -121,6 +123,8 @@ public class DeviceControlActivity extends Activity {
     // demonstrates 'Read' and 'Notify' features.  See
     // http://d.android.com/reference/android/bluetooth/BluetoothGatt.html for the complete
     // list of supported characteristic features.
+
+
     private final ExpandableListView.OnChildClickListener servicesListClickListner =
             new ExpandableListView.OnChildClickListener() {
                 @Override
@@ -165,6 +169,7 @@ public class DeviceControlActivity extends Activity {
         mDeviceName = intent.getStringExtra(mDeviceName);
         mDeviceAddress = intent.getStringExtra(mDeviceAddress);
         mRSSI = intent.getIntExtra("EXTRAS_DEVICE_RSSI",mRSSI);
+
  /*       Log.d("NAME 값 :", String.valueOf(mDeviceName));
         Log.d("주소 값 :", String.valueOf(mDeviceAddress));
         Log.d("rssi 값 :", String.valueOf(mRSSI));*/
