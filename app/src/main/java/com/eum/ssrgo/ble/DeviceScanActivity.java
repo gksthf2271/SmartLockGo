@@ -1,19 +1,4 @@
 /*
- * Copyright (C) 2013 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.eum.ssrgo.ble;
 
 import android.app.Activity;
@@ -40,9 +25,8 @@ import com.eum.ssrgo.R;
 
 import java.util.ArrayList;
 
-/**
- * Activity for scanning and displaying available Bluetooth LE devices.
- */
+
+
 public class DeviceScanActivity extends ListActivity {
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
@@ -55,9 +39,23 @@ public class DeviceScanActivity extends ListActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        Intent blue_intent = getIntent();
         super.onCreate(savedInstanceState);
         getActionBar().setTitle(R.string.title_devices);
+        setContentView(R.layout.app_bar_main);
+
+  */
+/*      FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        RelativeLayout layout = (RelativeLayout) findViewById(R.layout.content_main);
+        TextView TV = (TextView) findViewById(R.id.text1);
+        fab.setVisibility(View.GONE);
+        layout.setVisibility(View.GONE);
+        TV.setVisibility(View.VISIBLE);
+        setListAdapter(new ArrayAdapter<String>(this,
+                R.layout.list_layout,
+                (List<String>) mLeDeviceListAdapter));*//*
+
+
+
         mHandler = new Handler();
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
@@ -81,20 +79,22 @@ public class DeviceScanActivity extends ListActivity {
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        if (!mScanning) {
-            menu.findItem(R.id.menu_stop).setVisible(false);
-            menu.findItem(R.id.menu_scan).setVisible(true);
-            menu.findItem(R.id.menu_refresh).setActionView(null);
-        } else {
-            menu.findItem(R.id.menu_stop).setVisible(true);
-            menu.findItem(R.id.menu_scan).setVisible(false);
-            menu.findItem(R.id.menu_refresh).setActionView(
-                    R.layout.actionbar_indeterminate_progress);
-        }
-        return true;
+        @Override
+        public boolean onCreateOptionsMenu(Menu menu) {
+            getMenuInflater().inflate(R.menu.main, menu);
+            if (!mScanning) {
+                menu.findItem(R.id.menu_stop).setVisible(false);
+                menu.findItem(R.id.menu_scan).setVisible(true);
+                menu.findItem(R.id.menu_refresh).setActionView(null);
+
+            } else {
+                menu.findItem(R.id.menu_stop).setVisible(true);
+                menu.findItem(R.id.menu_scan).setVisible(false);
+           menu.findItem(R.id.menu_refresh).setActionView(
+                        R.layout.actionbar_indeterminate_progress);
+
+            }
+            return true;
     }
 
     @Override
@@ -147,7 +147,7 @@ public class DeviceScanActivity extends ListActivity {
         mLeDeviceListAdapter.clear();
     }
 
-    @Override
+  @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
@@ -161,6 +161,8 @@ public class DeviceScanActivity extends ListActivity {
         startActivity(intent);
     }
 
+
+    // Scan 시작
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             // Stops scanning after a pre-defined scan period.
@@ -179,9 +181,12 @@ public class DeviceScanActivity extends ListActivity {
             mScanning = false;
             mBluetoothAdapter.stopLeScan(mLeScanCallback);
         }
+
         invalidateOptionsMenu();
     }
 
+
+    //실제로 Scan을 하고, BLE를 추가해주는 Adapter.
     // Adapter for holding devices found through scanning.
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
@@ -191,6 +196,7 @@ public class DeviceScanActivity extends ListActivity {
             super();
             mLeDevices = new ArrayList<BluetoothDevice>();
             mInflator = DeviceScanActivity.this.getLayoutInflater();
+
         }
 
         public void addDevice(BluetoothDevice device) {
@@ -269,3 +275,4 @@ public class DeviceScanActivity extends ListActivity {
         TextView deviceAddress;
     }
 }
+*/
