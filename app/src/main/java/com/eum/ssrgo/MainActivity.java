@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity
 
     private static final String TAG = "MainActivity";
     private static Context thiscontext;
+
     //map
     private MapFragment mMapFragment;
     private GoogleMap mMap;
@@ -93,7 +94,7 @@ public class MainActivity extends AppCompatActivity
 
     //poly line
     private PolylineOptions polylineOptions;
-    private ArrayList<LatLng> arrayPoints;
+    private ArrayList<LatLng> arrayPoints = null;
 
     //GOOGLE API
     private GoogleApiClient mGoogleApiClient;
@@ -117,7 +118,6 @@ public class MainActivity extends AppCompatActivity
     //TEST . BLE 스캔 관련
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
-    private boolean mScanning;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 10000;
 
@@ -173,6 +173,8 @@ public class MainActivity extends AppCompatActivity
         bt_login = (Button) navHeaderView.findViewById(R.id.bt_Login);
         bt_logout = (Button) navHeaderView.findViewById(R.id.bt_Logout);
 
+
+
         //tv_layout.setVisibility(View.INVISIBLE);
         Button.OnClickListener onClickListener = new Button.OnClickListener() {
             @Override
@@ -186,8 +188,11 @@ public class MainActivity extends AppCompatActivity
                     case R.id.bt_Login:
                         Intent intent1 = new Intent(thiscontext, SignInActivity.class);
                         startActivityForResult(intent1, requestcode);
+
                         break;
                     case R.id.bt_Logout:
+                        ////// TODO: 2016-09-19 LOGOUT 하시겠습니까? 화면 intent
+
                         setupView("LOGOUT");
                         break;
                 }
@@ -296,6 +301,9 @@ public class MainActivity extends AppCompatActivity
         mBluetoothAdapter = bluetoothManager.getAdapter();
         if(mBluetoothAdapter.isEnabled()) Log.e (TAG,"BluetoothAdapter is enbled!!");
         if(mBluetoothAdapter == null) Log.e("TAG","Bluetooth adapter is null");
+
+
+
         /////////
 
         thiscontext = getApplicationContext();
@@ -350,13 +358,14 @@ public class MainActivity extends AppCompatActivity
         if (!isGPSEnabled) {
             showSettingsAlert();
         }
-/*        Intent ble_intent = new Intent(this, DeviceScanActivity.class);
-        startActivity(ble_intent);*/
         init();
         scanLeDevice(true);
     }
 
     private void scanLeDevice(final boolean enable) {
+        UUID[] uuid = new UUID[1];
+/*        uuid[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");*/
+        uuid[0] = UUID.fromString("0B8BECE3-F274-44A6-8CD2-089490B30623");
             if (enable) {
                 Log.e(TAG,"ScanLeDevice is called!");
                 // Stops scanning after a pre-defined scan period.
@@ -370,11 +379,7 @@ public class MainActivity extends AppCompatActivity
 
                 mScanning = true;
 
-                /*UUID[] uuids = new UUID[1];
-                uuids[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");*/
-
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
-
             } else {
                 mScanning = false;
                 mBluetoothAdapter.stopLeScan(mLeScanCallback);
@@ -489,16 +494,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
-        getMenuInflater().inflate(R.menu.main, menu);
         if (!mScanning) {
             menu.findItem(R.id.menu_stop).setVisible(false);
             menu.findItem(R.id.menu_scan).setVisible(true);
-/*            menu.findItem(R.id.menu_refresh).setActionView(null);*/
+            menu.findItem(R.id.menu_refresh).setActionView(null);
         } else {
             menu.findItem(R.id.menu_stop).setVisible(true);
             menu.findItem(R.id.menu_scan).setVisible(false);
-/*            menu.findItem(R.id.menu_refresh).setActionView(
-                    R.layout.actionbar_indeterminate_progress);*/
+            menu.findItem(R.id.menu_refresh).setActionView(
+                    R.layout.actionbar_indeterminate_progress);
         }
         return true;
     }
@@ -526,6 +530,8 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
         Fragment fragment = null;
+        final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
+        final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
         if (id == R.id.nav_home) {
             Log.e(TAG, "네비 홈 눌렸다!");
@@ -667,6 +673,7 @@ public class MainActivity extends AppCompatActivity
 
         MyLocation myLocation = new MyLocation();
         myLocation.getLocation(thiscontext, locationResult);
+
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
@@ -1137,22 +1144,22 @@ public class MainActivity extends AppCompatActivity
 
 
 
-                LatLng ridingLatLng1 = new LatLng(riding_list.get(i).latitude, riding_list.get(i).longitude);
-                LatLng ridingLatLng2 = new LatLng(riding_list.get(i+1).latitude, riding_list.get(i+1).longitude);
-                Location.distanceBetween(riding_list.get(i).latitude, riding_list.get(i).longitude,riding_list.get(i+1).latitude ,riding_list.get(i+1).longitude , distance);
+            LatLng ridingLatLng1 = new LatLng(riding_list.get(i).latitude, riding_list.get(i).longitude);
+            LatLng ridingLatLng2 = new LatLng(riding_list.get(i+1).latitude, riding_list.get(i+1).longitude);
+            Location.distanceBetween(riding_list.get(i).latitude, riding_list.get(i).longitude,riding_list.get(i+1).latitude ,riding_list.get(i+1).longitude , distance);
 
-                PolylineOptions rectOptions = new PolylineOptions()
-                        .add(ridingLatLng1).add(ridingLatLng2);
-                Polyline polyline = mMap.addPolyline(rectOptions);
+            PolylineOptions rectOptions = new PolylineOptions()
+                    .add(ridingLatLng1).add(ridingLatLng2);
+            Polyline polyline = mMap.addPolyline(rectOptions);
 
 
-                Log.e(TAG, " 폴리라인 그리기1 ! : " + ridingLatLng1);
-                Log.e(TAG, " 폴리라인 그리기2 ! : " + ridingLatLng2);
-                Log.e(TAG, " 거리  : " + Arrays.toString(distance));
-                Log.e(TAG, " 거리  : " + distance);
+            Log.e(TAG, " 폴리라인 그리기1 ! : " + ridingLatLng1);
+            Log.e(TAG, " 폴리라인 그리기2 ! : " + ridingLatLng2);
+            Log.e(TAG, " 거리  : " + Arrays.toString(distance));
+            Log.e(TAG, " 거리  : " + distance);
 
-                totaldistance = totaldistance + distance[0];
-                Log.e(TAG,"data : " + totaldistance );
+            totaldistance = totaldistance + distance[0];
+            Log.e(TAG,"data : " + totaldistance );
         }
 
         /*for(int i = 0 ; i < distance.length ; i ++){
