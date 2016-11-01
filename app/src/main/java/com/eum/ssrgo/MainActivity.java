@@ -3,7 +3,6 @@ package com.eum.ssrgo;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,7 +38,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.eum.ssrgo.ble.DeviceControlActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -536,8 +534,7 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.nav_home) {
             Log.e(TAG, "네비 홈 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_home);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
@@ -554,8 +551,8 @@ public class MainActivity extends AppCompatActivity
             });
         } else if (id == R.id.nav_riding) {
             Log.e(TAG, "네비 라이딩 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             navigationView.setCheckedItem(R.id.nav_riding);
             layout_ridingData.setVisibility(View.VISIBLE);
             layout_summaryData.setVisibility(View.GONE);
@@ -577,8 +574,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_search) {
             Log.e(TAG, "네비 길찾기 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             navigationView.setCheckedItem(R.id.nav_search);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
@@ -595,8 +592,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_summary) {
             Log.e(TAG, "네비 기록요약 눌렸다!");
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             navigationView.setCheckedItem(R.id.nav_record_summary);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
@@ -607,8 +604,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_height) {
             navigationView.setCheckedItem(R.id.nav_record_height);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
@@ -617,8 +614,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_section) {
             navigationView.setCheckedItem(R.id.nav_record_section);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
@@ -627,8 +624,8 @@ public class MainActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_record_section_info) {
             navigationView.setCheckedItem(R.id.nav_record_section_info);
-            final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-            final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
@@ -1255,39 +1252,7 @@ public class MainActivity extends AppCompatActivity
         TextView deviceAddress;
     }
 
-    private void testData_fromDB(){
-        //String myUserId = getUid();
-        //DB중에서 검색할 날짜를 받아서 child에 넣어줘야함 현재는 25 05:49:17
-        Query myTopPostsQuery = mDatabase.child("users").child("TEST").child("Riding").child("2016").child("10").orderByChild("25 05:49:17");
-        //test
 
-        myTopPostsQuery.addChildEventListener(new ChildEventListener() {
-
-            @Override
-            //String = 마지막 키값
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-            }
-
-}
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
 
     private class LeDeviceListAdapter extends BaseAdapter {
         private ArrayList<BluetoothDevice> mLeDevices;
