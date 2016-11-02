@@ -106,12 +106,17 @@ public class MainActivity extends AppCompatActivity
     private View navHeaderView;
     private LocationManager locationManager;
     private int requestcode = 1;
+
+
+    //view static 변수.
+    private static LinearLayout layout_userInfo;
     private static TextView tv_username;
     private static TextView tv_useremail;
     private static Button bt_login;
     private static Button bt_logout;
     private static Button bt_joinus;
     private static FloatingActionButton fab;
+    private static RelativeLayout layout_ridingData;
 
     //TEST . BLE 스캔 관련
     private LeDeviceListAdapter mLeDeviceListAdapter;
@@ -133,10 +138,6 @@ public class MainActivity extends AppCompatActivity
 
     public List<Riding> riding_list = new ArrayList<>();
     public ArrayList<GetRidingList> getriding_list = new ArrayList<>();
-    // public GenericTypeIndicator<List<GetRidingList>> getriding_list = new GenericTypeIndicator<List<GetRidingList>>() {};
-
-
-
     private DatabaseReference mDatabase;
 
     // DB 날짜 저장 년/월/일
@@ -152,17 +153,16 @@ public class MainActivity extends AppCompatActivity
     private String diffTime;
 
     // 이동거리
-
     private float[] distance = new float[1];
     private float[] moving_distance = new float[1];
     private float totaldistance = 0f;
     //view init
     private void init() {
 
+        //Firebase Database
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
-
-
+        //View init
         navHeaderView = navigationView.inflateHeaderView(R.layout.nav_header_main);
         tv_username = (TextView) navHeaderView.findViewById(R.id.tv_UserName);
         tv_useremail = (TextView) navHeaderView.findViewById(R.id.tv_userEmail);
@@ -171,26 +171,23 @@ public class MainActivity extends AppCompatActivity
         bt_login = (Button) navHeaderView.findViewById(R.id.bt_Login);
         bt_logout = (Button) navHeaderView.findViewById(R.id.bt_Logout);
 
+        layout_userInfo = (LinearLayout) findViewById(R.id.layout_userInfo);
+        layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
 
-        //tv_layout.setVisibility(View.INVISIBLE);
         Button.OnClickListener onClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.bt_Join:
                         Intent intent_ = new Intent(thiscontext, SignUpActivity.class);
-                        /*intent_.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);*/
                         startActivityForResult(intent_, requestcode);
                         break;
                     case R.id.bt_Login:
                         Intent intent1 = new Intent(thiscontext, SignInActivity.class);
                         startActivityForResult(intent1, requestcode);
-
                         break;
                     case R.id.bt_Logout:
-                        ////// TODO: 2016-09-19 LOGOUT 하시겠습니까? 화면 intent
-
                         setupView("LOGOUT");
                         break;
                 }
@@ -199,19 +196,10 @@ public class MainActivity extends AppCompatActivity
         bt_joinus.setOnClickListener(onClickListener);
         bt_login.setOnClickListener(onClickListener);
         bt_logout.setOnClickListener(onClickListener);
-
-
-
     }
 
-    //로그인,로그아웃시에 VIEW를 바꿔주는 함수
+    //로그인,로그아웃시의 View Change
     private void setupView(String requestCode) {
-        bt_joinus = (Button) findViewById(R.id.bt_Join);
-        bt_login = (Button) findViewById(R.id.bt_Login);
-        bt_logout = (Button) findViewById(R.id.bt_Logout);
-        LinearLayout layout_userInfo = (LinearLayout) findViewById(R.id.layout_userInfo);
-
-
         if (requestCode == "LOGIN") {
             bt_joinus.setVisibility(View.GONE);
             bt_login.setVisibility(View.GONE);
@@ -219,7 +207,6 @@ public class MainActivity extends AppCompatActivity
             layout_userInfo.setVisibility(View.VISIBLE);
 
         } else if (requestCode == "LOGOUT") {
-            Log.e(TAG, "requestCode is LOGOUT");
             bt_joinus.setVisibility(View.VISIBLE);
             bt_login.setVisibility(View.VISIBLE);
             bt_logout.setVisibility(View.GONE);
@@ -230,31 +217,29 @@ public class MainActivity extends AppCompatActivity
             bt_login.setVisibility(View.GONE);
             bt_logout.setVisibility(View.VISIBLE);
             layout_userInfo.setVisibility(View.VISIBLE);
-
         }
     }
 
-    @Override
     /**
      * BLE 때문에 onResume함수 구현해두었음. 만약 지도 refresh 관련 문제 생기면 참조 할 것
      * */
+    @Override
     protected void onResume(){
         super.onResume();
         Log.e(TAG,"onResume! ");
-
+        //Bluetooth 사용 설정 요청
         if (!mBluetoothAdapter.isEnabled()) {
             if (!mBluetoothAdapter.isEnabled()) {
+                //// TODO: 2016-11-03 BT설정 관련 Intent를 StartActivity로 해야하는지? onActivityResult에서 처리할 데이터는??
                 Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
                 startActivityForResult(enableBtIntent, 1);
             }
         }
-
-        // Initializes list view adapter.
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         //setListAdapter(mLeDeviceListAdapter);
+
+        //BLE Device Scan Start
         scanLeDevice(true);
-
-
     }
 
     @Override
@@ -271,46 +256,44 @@ public class MainActivity extends AppCompatActivity
                 String name = data.getStringExtra("user_name");
                 user_id = data.getStringExtra("user_id");
 
-
                 tv_userEmail.setText(email);
                 tv_userName.setText(name + "님 환영합니다.");
 
                 // 기록요약탭에 일단 user_id 값을 뿌리게 해봄;
+                //// TODO: 2016-11-03 관련 작업 마무리 할 것. 안쓰면 지우고, View는 private static으로 선언하고 init()내에서 findViewById 해줄것.
                 TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
                 sum_ridingtime.setText(user_id);
-
             } else {
                 Log.e(TAG, "resultCode is " + resultCode);
             }
         }
     }
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.e(TAG, "onCreate!");
         super.onCreate(savedInstanceState);
-        mHandler = new Handler();
+        Log.e(TAG, "onCreate!");
 
+        mHandler = new Handler();
 
         ////////BLE ADAPTER INIT
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
-        if(mBluetoothAdapter.isEnabled()) Log.e (TAG,"BluetoothAdapter is enbled!!");
+        if(mBluetoothAdapter.isEnabled()) Log.e (TAG,"BluetoothAdapter is enabled!!");
         if(mBluetoothAdapter == null) Log.e("TAG","Bluetooth adapter is null");
-
-
-
         /////////
 
         thiscontext = getApplicationContext();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //Firebase token Get
         String myToken = FirebaseInstanceId.getInstance().getToken();
         Log.e(TAG, "My Token is :" + myToken);
 
+        //fab init 및 listener
         fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -318,15 +301,12 @@ public class MainActivity extends AppCompatActivity
                 startLocationUpdates();
                 //fab버튼누르면 라이딩으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_riding);
-
-                //fab flag변수
-
+                //Riding 시작
                 startRiding();
-
             }
         });
 
-
+        //navigation drawer의 toggle sync start.
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -337,18 +317,21 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         Log.e(TAG, "nav is ok");
 
+        //loading
         timeThread();
 
+        //LocationServices를 사용하기 위해 ApiClient 연결
         mGoogleApiClient = new GoogleApiClient.Builder(thiscontext)
                 .addApi(LocationServices.API)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
+
+        //MapAsync 시작
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        Log.e(TAG, "mapFragment Async succeed!");
-
+        Log.e(TAG, "mapFragment Async 성공!");
 
         //GPS사용 여부 체크 후 GPS설정창 띄워줌
         LocationManager locationManager = (LocationManager) thiscontext.getSystemService(Context.LOCATION_SERVICE);
@@ -366,7 +349,6 @@ public class MainActivity extends AppCompatActivity
         uuid[0] = UUID.fromString("0B8BECE3-F274-44A6-8CD2-089490B30623");
             if (enable) {
                 Log.e(TAG,"ScanLeDevice is called!");
-                // Stops scanning after a pre-defined scan period.
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
@@ -374,9 +356,7 @@ public class MainActivity extends AppCompatActivity
                         mBluetoothAdapter.stopLeScan(mLeScanCallback);
                     }
                 }, SCAN_PERIOD);
-
                 mScanning = true;
-
                 mBluetoothAdapter.startLeScan(mLeScanCallback);
             } else {
                 mScanning = false;
@@ -386,24 +366,20 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void startRiding() {
-        final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
         layout_ridingData.setVisibility(View.VISIBLE);
         fab.setVisibility(View.GONE);
 
-
         TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
         txt_speed.setText("Current Speed : " + mySpeed);
 
+
+        //Speed_run은 항상 True상태, Riding중 휴식에 대한 처리를 위해서 Flag변수를 둔건지?
+        //// TODO: 2016-11-03 Riding 휴식 시간 처리.
         if (speed_run == true) {
             /*speed_run = false;*/
-
             Log.e(TAG, "Speed Thread end");
-
         }
-
-
-
             //DB테스트용 onClickListener
        /* mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
                                        @Override
@@ -415,40 +391,30 @@ public class MainActivity extends AppCompatActivity
                                            Log.e(TAG, "riding_list : " +  riding_list.get(0).time.toString() +  riding_list.size());
                                        }
                                    });*/
-
         //라이딩 종료 버튼
-
         Button btn = (Button) findViewById(R.id.btn_cancel);
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 //fab버튼누르면 홈으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_home);
                 layout_ridingData.setVisibility(View.GONE);
                 mMap.clear();
-
                 if(user_id != null) {
                     if(riding_list.size() != 0 ){
+                        //DB에 저장
                         mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").setValue(riding_list);
-
-                        Log.e(TAG,"riding_list.get(0) : " + riding_list.get(0));
-
                         riding_list = null;
                         Year = null;
                         Month = null;
                         Day = null;
-
                     }else {
-
                         Toast.makeText(MainActivity.this, "DATA upload : " + riding_list.get(0).latitude + riding_list.get(0).longitude + riding_list.size(), Toast.LENGTH_SHORT).show();
-
                     }
                 }
                 fab.setVisibility(View.VISIBLE);
             }
         });
-
     }
 
 
@@ -842,8 +808,6 @@ public class MainActivity extends AppCompatActivity
                 totaldistance = totaldistance + moving_distance[0];
                 Log.e(TAG,"data : " + totaldistance );
 
-
-
                 PolylineOptions rectOptions = new PolylineOptions()
                         .add(thisLatLon).add(CurrenLatLon);
                 Polyline polyline = mMap.addPolyline(rectOptions);
@@ -942,10 +906,11 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    //Loading을 표현하기 위해 사용하는 Thread
     public void timeThread() {
         dialog = new ProgressDialog(MainActivity.this);
-        dialog.setTitle("Wait...");
-        dialog.setMessage("Please wait while loading...");
+        dialog.setTitle("Loading");
+        dialog.setMessage("불러 오는 중 입니다.");
         dialog.setIndeterminate(true);
         dialog.setCancelable(true);
         dialog.show();
@@ -1012,23 +977,20 @@ public class MainActivity extends AppCompatActivity
     private void RidingListSet(Double latitude, Double longitude) {
 
         Riding riding = new Riding(latitude, longitude);
+
         //날짜 format 변경 해주는 부분
         SimpleDateFormat sdfNow = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         Date date = new Date(System.currentTimeMillis());
         String strNow = sdfNow.format(date);
 
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
-
         Year = year.format(date);
 
         SimpleDateFormat month = new SimpleDateFormat("MM");
-
         Month = month.format(date);
 
         SimpleDateFormat day = new SimpleDateFormat("dd");
-
         Day = day.format(date);
-
 
         //라이딩 객체 init
         riding.time = strNow;
@@ -1037,23 +999,19 @@ public class MainActivity extends AppCompatActivity
 
     private void RidingListGet(){
 
-
-
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
         Date date = new Date(System.currentTimeMillis());
         Year = year.format(date);
 
         SimpleDateFormat month = new SimpleDateFormat("MM");
-
         Month = month.format(date);
 
         SimpleDateFormat day = new SimpleDateFormat("dd");
-
         Day = day.format(date);
 
         //getriding_list = null;
 
-        mDatabase.child("users").child(user_id).child("2016").child("10").child("31").child("Riding").addChildEventListener(new ChildEventListener() {
+        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
