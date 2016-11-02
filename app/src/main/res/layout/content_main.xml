@@ -41,7 +41,7 @@
                 android:id="@+id/btn_cancel"
                 android:layout_width="180dip"
                 android:layout_height="100dip"
-                android:text="취소"
+                android:text="종료"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentEnd="true" />
 
