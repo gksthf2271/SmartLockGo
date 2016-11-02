@@ -73,6 +73,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import static com.eum.ssrgo.R.id.layout_summaryData;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -422,10 +424,22 @@ public class MainActivity extends AppCompatActivity
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+/*
+                final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
+                final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
-                //fab버튼누르면 홈으로 바뀜.
-                navigationView.setCheckedItem(R.id.nav_home);
+                navigationView.setCheckedItem(R.id.nav_record_summary);
                 layout_ridingData.setVisibility(View.GONE);
+                layout_summaryData.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.GONE);*/
+
+
+               /* RidingListGet();
+                drawPolyLine();
+                diffOfDate();*/
+
+                layout_ridingData.setVisibility(View.GONE);
+
                 mMap.clear();
 
                 if(user_id != null) {
@@ -558,7 +572,7 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
 
-           /* Button btn = (Button) findViewById(R.id.btn_cancel);
+            Button btn = (Button) findViewById(R.id.btn_cancel);
             btn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -569,7 +583,7 @@ public class MainActivity extends AppCompatActivity
                     fab.setVisibility(View.VISIBLE);
 
                 }
-            });*/
+            });
 
 
         } else if (id == R.id.nav_search) {
@@ -1053,7 +1067,7 @@ public class MainActivity extends AppCompatActivity
 
         //getriding_list = null;
 
-        mDatabase.child("users").child(user_id).child("2016").child("10").child("31").child("Riding").addChildEventListener(new ChildEventListener() {
+        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
