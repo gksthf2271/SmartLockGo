@@ -3,15 +3,25 @@ package com.eum.ssrgo;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattDescriptor;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
@@ -31,10 +41,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,17 +86,38 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-import static com.eum.ssrgo.R.id.layout_summaryData;
-
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
         GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
+    public  String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public  String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
+
+    private LeDeviceListAdapter mLeDeviceListAdapter;
+    private BluetoothAdapter mBluetoothAdapter;
+    private Handler mHandler;
+    private BluetoothGatt mBluetoothGatt;
+    private static final long SCAN_PERIOD = 10000;
+    private String mDeviceName;
+    private String mDeviceAddress;
+    private ExpandableListView mGattServicesList;
+    private BluetoothLeService mBluetoothLeService;
+    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
+            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+
+    private static BluetoothGattCharacteristic characteristic;
+
+    private boolean mConnected = false;
+    private BluetoothGattCharacteristic mNotifyCharacteristic;
+
+    private final String LIST_NAME = "NAME";
+    private final String LIST_UUID = "UUID";
 
     private static final String TAG = "MainActivity";
     private static Context thiscontext;
+
 
     //map
     private MapFragment mMapFragment;
@@ -120,13 +154,6 @@ public class MainActivity extends AppCompatActivity
     private static FloatingActionButton fab;
     private static RelativeLayout layout_ridingData;
 
-    //TEST . BLE 스캔 관련
-    private LeDeviceListAdapter mLeDeviceListAdapter;
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
-    private static final long SCAN_PERIOD = 10000;
-
-
     ProgressDialog dialog;
     boolean run = true;
     boolean speed_run = true;
@@ -158,7 +185,8 @@ public class MainActivity extends AppCompatActivity
     private float[] distance = new float[1];
     private float[] moving_distance = new float[1];
     private float totaldistance = 0f;
-    //view init
+
+
     private void init() {
 
         //Firebase Database
@@ -229,6 +257,10 @@ public class MainActivity extends AppCompatActivity
     protected void onResume(){
         super.onResume();
         Log.e(TAG,"onResume! ");
+
+        //BLE Receiver 등록.
+        registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
+
         //Bluetooth 사용 설정 요청
         if (!mBluetoothAdapter.isEnabled()) {
             if (!mBluetoothAdapter.isEnabled()) {
@@ -237,11 +269,25 @@ public class MainActivity extends AppCompatActivity
                 startActivityForResult(enableBtIntent, 1);
             }
         }
+
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         //setListAdapter(mLeDeviceListAdapter);
-
         //BLE Device Scan Start
-        scanLeDevice(true);
+        //scanLeDevice(true);
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(mGattUpdateReceiver);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if(mServiceConnection != null) unbindService(mServiceConnection);
+        mBluetoothLeService = null;
     }
 
     @Override
@@ -346,9 +392,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void scanLeDevice(final boolean enable) {
-        UUID[] uuid = new UUID[1];
-/*        uuid[0] = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");*/
-        uuid[0] = UUID.fromString("0B8BECE3-F274-44A6-8CD2-089490B30623");
+
             if (enable) {
                 Log.e(TAG,"ScanLeDevice is called!");
                 mHandler.postDelayed(new Runnable() {
@@ -492,13 +536,29 @@ public class MainActivity extends AppCompatActivity
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_scan:
-                Log.d("메뉴 scan 클릭","");
-                mLeDeviceListAdapter.clear();
-                scanLeDevice(true);
+                Log.e(TAG,"메뉴 scan 클릭");
+                mBluetoothLeService.disconnect();
+                //mBluetoothGatt.close();
+                //mLeDeviceListAdapter.clear();
+                //scanLeDevice(true);
                 break;
             case R.id.menu_stop:
-                Log.d("메뉴 stop 클릭","");
+                Log.e(TAG,"메뉴 stop 클릭");
                 scanLeDevice(false);
+                final BluetoothDevice device = mLeDeviceListAdapter.getDevice(0);
+                final Intent intent = new Intent(this, DeviceControlActivity.class);
+
+                EXTRAS_DEVICE_NAME = device.getName();
+                EXTRAS_DEVICE_ADDRESS = device.getAddress();
+
+                //BLE Service Bind
+                Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
+                bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+
+                //intent 처리 제외
+                //intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
+                //intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                //startActivity(intent);
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -897,7 +957,6 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
     //location의 각종 정보를 LOGGING
     public void getLocationStatement(Location location) {
         Log.e(TAG, "==========================================================================");
@@ -909,13 +968,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-
     //오류 처리 함수들
-
-
     @Override
     public void onConnectionSuspended(int i) {
-
     }
 
     @Override
@@ -967,17 +1022,12 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void handleMessage(Message msg) {
 
-
             TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
             txt_speed.setText("Current Speed : " + mySpeed);
             TextView txt_distance = (TextView) findViewById(R.id.txt_distance);
             txt_distance.setText("이동거리 : " + totaldistance);
-
-
-
         }
     };
-
 
     /*private void FireBaseTest(String userId, String Riding, Float latitude, Float longitude) {
         Riding riding = new Riding(latitude, longitude);
@@ -1114,8 +1164,6 @@ public class MainActivity extends AppCompatActivity
 
         for(int i=0 ; i < (riding_list.size())-1 ; i++) {
 
-
-
             LatLng ridingLatLng1 = new LatLng(riding_list.get(i).latitude, riding_list.get(i).longitude);
             LatLng ridingLatLng2 = new LatLng(riding_list.get(i+1).latitude, riding_list.get(i+1).longitude);
             Location.distanceBetween(riding_list.get(i).latitude, riding_list.get(i).longitude,riding_list.get(i+1).latitude ,riding_list.get(i+1).longitude , distance);
@@ -1141,8 +1189,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void diffOfDate(){
-
-
 
         try {
             for(int i=0 ; i < riding_list.size() ; i++) {
@@ -1172,34 +1218,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-
-/*    // 정수로 된 시간을 초단위(sec)로 입력 받아, "04:11:15" 등의 형식의 문자열로 시분초를 저장
-    public static void secToHHMMSS(int secs) {
-        int hour, min, sec;
-
-        sec  = secs % 60;
-        min  = secs / 60 % 60;
-        hour = secs / 3600;
-
-        timerBuffer = String.format("%02d:%02d:%02d", hour, min, sec);
-    }
-
-
-    public static void pause() {
-        try {
-            System.in.read();
-        } catch (IOException e) { }
-    }
-
-    public static void stopwatch(int onOff) {
-        if (onOff == 1) // 타이머 켜기
-            oldTime = (int) System.currentTimeMillis() / 1000;
-
-        if (onOff == 0) // 타이머 끄고, 시분초를 timerBuffer 에 저장
-            secToHHMMSS(  ((int) System.currentTimeMillis() / 1000) - oldTime  );
-
-    }*/
-
     // Device scan callback.
     private BluetoothAdapter.LeScanCallback mLeScanCallback =
             new BluetoothAdapter.LeScanCallback() {
@@ -1209,14 +1227,16 @@ public class MainActivity extends AppCompatActivity
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            BluetoothDevice LE_device = mBluetoothAdapter.getRemoteDevice(device.getAddress());
 
                             mLeDeviceListAdapter.addDevice(device);
+                            mDeviceAddress = device.getAddress();
                             mLeDeviceListAdapter.notifyDataSetChanged();
+
+                            mBluetoothGatt = device.connectGatt(thiscontext, false, new BluetoothGattCallback() {
+                            });
                             Log.e(TAG, "==================OnLeScan=================");
                             Log.e(TAG, "DEVICE NAME :  " + device.getName());
                             Log.e(TAG, "DEVICE RSSI :  " + rssi);
-
                         }
                     });
                 }
@@ -1227,6 +1247,60 @@ public class MainActivity extends AppCompatActivity
         TextView deviceAddress;
     }
 
+    //BLE 가능 여부 확인 및 서비스 bind.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder service) {
+            mBluetoothLeService = ((BluetoothLeService.LocalBinder) service).getService();
+            if (!mBluetoothLeService.initialize()) {
+                Log.e(TAG, "Unable to initialize Bluetooth");
+                finish();
+            }
+            // Automatically connects to the device upon successful start-up initialization.
+
+            mBluetoothLeService.connect(mDeviceAddress);
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.e(TAG,"onServicedisconnected!");
+
+            mBluetoothLeService = null;
+        }
+    };
+
+    private final BroadcastReceiver mGattUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
+                mConnected = true;
+                Log.e(TAG,"Action is GATT_CONNECTED");
+                invalidateOptionsMenu();
+            } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
+                mConnected = false;
+                //mBluetoothLeService.disconnect();
+                Log.e(TAG,"Action is GATT_DISCONNECTED");
+                invalidateOptionsMenu();
+
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+                Log.e(TAG,"Action is DISCOVERED");
+                displayGattServices(mBluetoothLeService.getSupportedGattServices());
+            } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
+                Log.e(TAG,"Action is DATA AVAILABLE");
+                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+            }
+        }
+    };
+
+    private void displayData(String send_data){
+        String push_data = "PUSH DATA \n";
+        byte[] pushData = push_data.getBytes();
+        characteristic.setValue(pushData);
+        mBluetoothGatt.writeCharacteristic(characteristic);
+        Log.e(TAG,"DATA IS :" + send_data + " RSSI IS : " + mBluetoothGatt.readRemoteRssi());
+    }
 
 
     private class LeDeviceListAdapter extends BaseAdapter {
@@ -1294,6 +1368,84 @@ public class MainActivity extends AppCompatActivity
 
             return view;
         }
+    }
+
+    private void displayGattServices(List<BluetoothGattService> gattServices) {
+        if (gattServices == null) return;
+        String uuid = null;
+        String unknownServiceString = getResources().getString(R.string.unknown_service);
+        String unknownCharaString = getResources().getString(R.string.unknown_characteristic);
+
+        ArrayList<HashMap<String, String>> gattServiceData = new ArrayList<HashMap<String, String>>();
+        ArrayList<ArrayList<HashMap<String, String>>> gattCharacteristicData
+                = new ArrayList<ArrayList<HashMap<String, String>>>();
+        mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
+
+        // Loops through available GATT Services.
+        for (BluetoothGattService gattService : gattServices) {
+            HashMap<String, String> currentServiceData = new HashMap<String, String>();
+            uuid = gattService.getUuid().toString();
+
+            Log.e(TAG,"===================================");
+            Log.e(TAG,"GATT Services find! UUID is " + uuid.toString());
+
+            currentServiceData.put(
+                    LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
+            currentServiceData.put(LIST_UUID, uuid);
+
+            gattServiceData.add(currentServiceData);
+
+            ArrayList<HashMap<String, String>> gattCharacteristicGroupData =
+                    new ArrayList<HashMap<String, String>>();
+            List<BluetoothGattCharacteristic> gattCharacteristics =
+                    gattService.getCharacteristics();
+            ArrayList<BluetoothGattCharacteristic> charas =
+                    new ArrayList<BluetoothGattCharacteristic>();
+
+            // Loops through available Characteristics.
+            for (BluetoothGattCharacteristic gattCharacteristic : gattCharacteristics) {
+                charas.add(gattCharacteristic);
+                HashMap<String, String> currentCharaData = new HashMap<String, String>();
+                uuid = gattCharacteristic.getUuid().toString();
+                currentCharaData.put(
+                        LIST_NAME, SampleGattAttributes.lookup(uuid, unknownCharaString));
+                currentCharaData.put(LIST_UUID, uuid);
+                gattCharacteristicGroupData.add(currentCharaData);
+            }
+            mGattCharacteristics.add(charas);
+            gattCharacteristicData.add(gattCharacteristicGroupData);
+        }
+
+        if(mBluetoothLeService != null){
+        //특정 Characteristic을 등록 해준다.
+        if (mGattCharacteristics != null) {
+            characteristic = mGattCharacteristics.get(2).get(0);
+            final int charaProp = characteristic.getProperties();
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                if (mNotifyCharacteristic != null) {
+                    mBluetoothLeService.setCharacteristicNotification(
+                            mNotifyCharacteristic, false);
+                    mNotifyCharacteristic = null;
+                }
+                mBluetoothLeService.readCharacteristic(characteristic);
+            }
+            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                mNotifyCharacteristic = characteristic;
+                mBluetoothLeService.setCharacteristicNotification(
+                        characteristic, true);
+              }
+            }
+        }
+    }
+
+
+    private static IntentFilter makeGattUpdateIntentFilter() {
+        final IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_CONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_DISCONNECTED);
+        intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
+        intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
+        return intentFilter;
     }
 
 }
