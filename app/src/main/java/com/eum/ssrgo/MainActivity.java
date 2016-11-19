@@ -452,11 +452,6 @@ public class MainActivity extends AppCompatActivity
                 SimpleDateFormat day = new SimpleDateFormat("dd");
                 Day = day.format(date);
 
-
-
-
-
-
                 riding.time = stringdate;
                 riding.add(riding);
                 ridinglist_list.add(riding);
