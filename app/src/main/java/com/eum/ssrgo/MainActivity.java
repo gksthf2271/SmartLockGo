@@ -433,10 +433,9 @@ public class MainActivity extends AppCompatActivity
             public void onMapClick(LatLng latLng) {
                 //RIding객체를 현재 좌표값으로 만들어주고, 그 객체를 List에 add만 해주면됨.
                 //FireBaseTest(latLng.latitude,latLng.longitude);
-                Riding riding = new Riding(latLng.latitude,latLng.longitude);
-                RidingList ridinglist = new RidingList(riding);
 
-                int i = 0;
+                //RidingList ridinglist = new RidingList(riding);
+
 
                 SimpleDateFormat sdfNow = new SimpleDateFormat("HH:mm:ss");
                 Date date = new Date(System.currentTimeMillis());
@@ -451,12 +450,16 @@ public class MainActivity extends AppCompatActivity
 
                 SimpleDateFormat day = new SimpleDateFormat("dd");
                 Day = day.format(date);
+                Riding riding = new Riding(latLng.latitude,latLng.longitude);
 
                 riding.time = stringdate;
-                riding.add(riding);
-                ridinglist_list.add(riding);
 
-                Log.e(TAG,"ridinglist_list = " + ridinglist_list.get(0).list.get(0).time);
+                List<Riding> ridinglist = new ArrayList<Riding>();
+                ridinglist.add(riding);
+                RidingList myRiding = new RidingList(ridinglist);
+
+                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
+                //Log.e(TAG,"ridinglist_list = " + ridinglist_list.get(0).list.get(0).time);
 
                 Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
 

@@ -20,7 +20,6 @@ public class RidingList  {
     }
 
 
-
     public List<Riding> getList() {
         return list;
     }
