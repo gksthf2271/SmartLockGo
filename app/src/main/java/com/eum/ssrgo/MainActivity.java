@@ -164,6 +164,8 @@ public class MainActivity extends AppCompatActivity
     private double mySpeed;
 
     public List<Riding> riding_list = new ArrayList<>();
+    public List<RidingList> ridinglist_list = new ArrayList<>();
+    public List<RidingList> ridingbig_list = new ArrayList<>();
     public ArrayList<GetRidingList> getriding_list = new ArrayList<>();
     private DatabaseReference mDatabase;
 
@@ -171,6 +173,7 @@ public class MainActivity extends AppCompatActivity
     private String Year=null;
     private String Month=null;
     private String Day=null;
+    private String Time=null;
     private boolean mScanning;
 
 
@@ -391,22 +394,22 @@ public class MainActivity extends AppCompatActivity
 
     private void scanLeDevice(final boolean enable) {
 
-            if (enable) {
-                Log.e(TAG,"ScanLeDevice is called!");
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mScanning = false;
-                        mBluetoothAdapter.stopLeScan(mLeScanCallback);
-                    }
-                }, SCAN_PERIOD);
-                mScanning = true;
-                mBluetoothAdapter.startLeScan(mLeScanCallback);
-            } else {
-                mScanning = false;
-                mBluetoothAdapter.stopLeScan(mLeScanCallback);
-            }
-            invalidateOptionsMenu();
+        if (enable) {
+            Log.e(TAG,"ScanLeDevice is called!");
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    mScanning = false;
+                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
+                }
+            }, SCAN_PERIOD);
+            mScanning = true;
+            mBluetoothAdapter.startLeScan(mLeScanCallback);
+        } else {
+            mScanning = false;
+            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
+        invalidateOptionsMenu();
     }
 
     public void startRiding() {
@@ -424,17 +427,55 @@ public class MainActivity extends AppCompatActivity
             /*speed_run = false;*/
             Log.e(TAG, "Speed Thread end");
         }
-            //DB테스트용 onClickListener
-       /* mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-                                       @Override
-                                       public void onMapClick(LatLng latLng) {
+        //DB테스트용 onClickListener
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                //RIding객체를 현재 좌표값으로 만들어주고, 그 객체를 List에 add만 해주면됨.
+                //FireBaseTest(latLng.latitude,latLng.longitude);
+                Riding riding = new Riding(latLng.latitude,latLng.longitude);
+                RidingList ridinglist = new RidingList(riding);
 
-                                           FireBaseTest(latLng.latitude,latLng.longitude);
+                int i = 0;
 
-                                           mDatabase.child("users").child("TEST").child("Riding").child(riding_list.get(0).time.toString()).setValue(riding_list);
-                                           Log.e(TAG, "riding_list : " +  riding_list.get(0).time.toString() +  riding_list.size());
-                                       }
-                                   });*/
+                SimpleDateFormat sdfNow = new SimpleDateFormat("HH:mm:ss");
+                Date date = new Date(System.currentTimeMillis());
+                String stringdate = sdfNow.format(date);
+                Time = stringdate;
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                Year = year.format(date);
+
+                SimpleDateFormat month = new SimpleDateFormat("MM");
+                Month = month.format(date);
+
+                SimpleDateFormat day = new SimpleDateFormat("dd");
+                Day = day.format(date);
+
+
+
+
+
+
+                riding.time = stringdate;
+                riding.add(riding);
+                ridinglist_list.add(riding);
+
+                Log.e(TAG,"ridinglist_list = " + ridinglist_list.get(0).list.get(0).time);
+
+                Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
+
+                //mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).child(ridinglist_list.get(0).list.get(0).time);
+
+               // mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).setValue(ridinglist_list.listIterator());
+
+                //child(ridinglist.time).setValue(ridinglist.list.get(0));
+                //mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").setValue(riding_list);
+
+            }
+
+
+        });
         //라이딩 종료 버튼
         Button btn = (Button) findViewById(R.id.btn_cancel);
         btn.setOnClickListener(new View.OnClickListener() {
@@ -1064,6 +1105,7 @@ public class MainActivity extends AppCompatActivity
 
     private void RidingListGet(){
 
+        //// TODO: 2016-11-09 날짜를 DB에서 읽어서 단순하게 뿌려주는 역할만 하면 된다.
         SimpleDateFormat year = new SimpleDateFormat("yyyy");
         Date date = new Date(System.currentTimeMillis());
         Year = year.format(date);
@@ -1074,13 +1116,16 @@ public class MainActivity extends AppCompatActivity
         SimpleDateFormat day = new SimpleDateFormat("dd");
         Day = day.format(date);
 
+        //child는 연월일.
+        //day아래에 list가 들어가면 된다.
+
         //getriding_list = null;
 
         mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
-               // DataSnapshot ridingSnapshot = dataSnapshot.child("users").child(Year).child(Month).child(Day).child("Riding");
+                //dataSnapshot.
+                // DataSnapshot ridingSnapshot = dataSnapshot.child("users").child(Year).child(Month).child(Day).child("Riding");
 
                 /*GenericTypeIndicator<List<GetRidingList>> t = new GenericTypeIndicator<List<GetRidingList>>() {};
                 List<GetRidingList> messages = dataSnapshot.getValue(t);
@@ -1091,10 +1136,22 @@ public class MainActivity extends AppCompatActivity
                 Log.e(TAG,"key 번호에 대한 좌표 : " + dataSnapshot.getValue());
 
                 double re_lat = 0;
-                double re_lon= 0;
+                double re_lon = 0;
+
+                //주행기록의 전체를 불러오는 함수가 있어야함
+                //TO-DO 특정 라이딩의 날짜를 get 하는 함수 있어야함
+                //DB 에 넣기전에 riding_list에 넣고 setvalue 할텐데 riding_list 는 전역변수니까 끝나자마자 뷰 체인지를 해주는 동시에 그 리스트를 뷰에 뿌려주기만
+                //라이딩이 끝나고 바로 뿌려주는것은 db 에 안거치고 바로 riding_list 에서 set 해서 뿌려주게끔.
+                //라이딩 리스트를 get , set 하기 바로 직전에 초기화 시키는걸로만 합시다.
 
                 HashMap<String, Object> map = new HashMap<>();
                 map = (HashMap<String, Object>) dataSnapshot.getValue();
+
+
+
+                riding_list.add(dataSnapshot.getValue(Riding.class));
+                //Riding riding2 = new Riding;
+                //터치이벤트 리스너 구현할때 이런식으로 riding2.list.get(0).latitude;
 
                 re_lat = Double.valueOf((Double) map.get("latitude"));
                 re_lon = Double.valueOf((Double) map.get("longitude"));
@@ -1158,6 +1215,9 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+
+    //// TODO: 2016-11-09 함수별로 역할이 정확해야한다.  자주쓰이게 될 함수이므로
+    //// TODO: 2016-11-09  파라메터를 받아서 (Riding_list) 처리하도록 구현해야 한다.
     public void drawPolyLine(){
 
         for(int i=0 ; i < (riding_list.size())-1 ; i++) {
@@ -1362,7 +1422,7 @@ public class MainActivity extends AppCompatActivity
                 viewHolder.deviceName.setText(deviceName);
             else
                 viewHolder.deviceName.setText(R.string.unknown_device);
-                viewHolder.deviceAddress.setText(device.getAddress());
+            viewHolder.deviceAddress.setText(device.getAddress());
 
             return view;
         }
@@ -1415,23 +1475,23 @@ public class MainActivity extends AppCompatActivity
         }
 
         if(mBluetoothLeService != null){
-        //특정 Characteristic을 등록 해준다.
-        if (mGattCharacteristics != null) {
-            characteristic = mGattCharacteristics.get(2).get(0);
-            final int charaProp = characteristic.getProperties();
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                if (mNotifyCharacteristic != null) {
-                    mBluetoothLeService.setCharacteristicNotification(
-                            mNotifyCharacteristic, false);
-                    mNotifyCharacteristic = null;
+            //특정 Characteristic을 등록 해준다.
+            if (mGattCharacteristics != null) {
+                characteristic = mGattCharacteristics.get(2).get(0);
+                final int charaProp = characteristic.getProperties();
+                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                    if (mNotifyCharacteristic != null) {
+                        mBluetoothLeService.setCharacteristicNotification(
+                                mNotifyCharacteristic, false);
+                        mNotifyCharacteristic = null;
+                    }
+                    mBluetoothLeService.readCharacteristic(characteristic);
                 }
-                mBluetoothLeService.readCharacteristic(characteristic);
-            }
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                mNotifyCharacteristic = characteristic;
-                mBluetoothLeService.setCharacteristicNotification(
-                        characteristic, true);
-              }
+                if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                    mNotifyCharacteristic = characteristic;
+                    mBluetoothLeService.setCharacteristicNotification(
+                            characteristic, true);
+                }
             }
         }
     }
