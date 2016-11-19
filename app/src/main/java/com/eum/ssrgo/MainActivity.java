@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity
 
     private static BluetoothGattCharacteristic characteristic;
 
-    private boolean mConnected = false;
+    private boolean mConnected = true;
     private BluetoothGattCharacteristic mNotifyCharacteristic;
 
     private final String LIST_NAME = "NAME";
@@ -535,10 +535,13 @@ public class MainActivity extends AppCompatActivity
         switch (item.getItemId()) {
             case R.id.menu_scan:
                 Log.e(TAG,"메뉴 scan 클릭");
+
+                //GATT를 close해주고 그 뒤에 Service를 해제 해줘야함.
+                mBluetoothGatt.close();
                 mBluetoothLeService.disconnect();
-                //mBluetoothGatt.close();
+
                 //mLeDeviceListAdapter.clear();
-                //scanLeDevice(true);
+                scanLeDevice(true);
                 break;
             case R.id.menu_stop:
                 Log.e(TAG,"메뉴 stop 클릭");
@@ -1263,7 +1266,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             Log.e(TAG,"onServicedisconnected!");
-
             mBluetoothLeService = null;
         }
     };
@@ -1278,9 +1280,13 @@ public class MainActivity extends AppCompatActivity
                 invalidateOptionsMenu();
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
-                //mBluetoothLeService.disconnect();
                 Log.e(TAG,"Action is GATT_DISCONNECTED");
+
+                //어댑터 disable은 아예 스마트폰의 ble를 꺼버림
+                //mBluetoothAdapter.disable();
+
                 invalidateOptionsMenu();
+                //mBluetoothAdapter.enable();
 
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 Log.e(TAG,"Action is DISCOVERED");
@@ -1384,8 +1390,8 @@ public class MainActivity extends AppCompatActivity
             HashMap<String, String> currentServiceData = new HashMap<String, String>();
             uuid = gattService.getUuid().toString();
 
-            Log.e(TAG,"===================================");
-            Log.e(TAG,"GATT Services find! UUID is " + uuid.toString());
+            Log.e(TAG, "===================================");
+            Log.e(TAG, "GATT Services find! UUID is " + uuid.toString());
 
             currentServiceData.put(
                     LIST_NAME, SampleGattAttributes.lookup(uuid, unknownServiceString));
@@ -1413,25 +1419,26 @@ public class MainActivity extends AppCompatActivity
             mGattCharacteristics.add(charas);
             gattCharacteristicData.add(gattCharacteristicGroupData);
         }
-
-        if(mBluetoothLeService != null){
-        //특정 Characteristic을 등록 해준다.
-        if (mGattCharacteristics != null) {
-            characteristic = mGattCharacteristics.get(2).get(0);
-            final int charaProp = characteristic.getProperties();
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
-                if (mNotifyCharacteristic != null) {
-                    mBluetoothLeService.setCharacteristicNotification(
-                            mNotifyCharacteristic, false);
-                    mNotifyCharacteristic = null;
+        if (mConnected != false) {
+            if (mBluetoothLeService != null) {
+                //특정 Characteristic을 등록 해준다.
+                if (mGattCharacteristics != null) {
+                    characteristic = mGattCharacteristics.get(2).get(0);
+                    final int charaProp = characteristic.getProperties();
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_READ) > 0) {
+                        if (mNotifyCharacteristic != null) {
+                            mBluetoothLeService.setCharacteristicNotification(
+                                    mNotifyCharacteristic, false);
+                            mNotifyCharacteristic = null;
+                        }
+                        mBluetoothLeService.readCharacteristic(characteristic);
+                    }
+                    if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
+                        mNotifyCharacteristic = characteristic;
+                        mBluetoothLeService.setCharacteristicNotification(
+                                characteristic, true);
+                    }
                 }
-                mBluetoothLeService.readCharacteristic(characteristic);
-            }
-            if ((charaProp | BluetoothGattCharacteristic.PROPERTY_NOTIFY) > 0) {
-                mNotifyCharacteristic = characteristic;
-                mBluetoothLeService.setCharacteristicNotification(
-                        characteristic, true);
-              }
             }
         }
     }
