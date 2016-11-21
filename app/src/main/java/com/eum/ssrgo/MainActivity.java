@@ -1417,9 +1417,10 @@ public class MainActivity extends AppCompatActivity
         }
 
         //DB테스트용 onClickListener
-        //Riding 에 위도와 경도 시간이 들어갑니다. 그리고 그것을 List화 해서 저장을 한것을 ridinglist 에 넣어주고
-        //ridinglist 를 또 myriding에 넣어서 0번째 - 0번째 배열 , 1번째 1번째 배열 이렇게 나오게끔 저장과 불러오기를 하고싶습니다.
-        //이것때문에 2주가 막혀서 고민중입니다.. 부탁드릴게요.. ㅠㅠ
+
+        // 터치를 할 경우에 좌표와 시간을 받아와서 riding 리스트에 넣어서 종료를 누를시에
+        // mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").push().setValue(riding_list); 이러한 경로로 들어감
+        // push 를 해서 키값이 자동생성되고 그 안에는 주행기록들이 리스트로 들어있다.
 
         mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
@@ -1442,19 +1443,6 @@ public class MainActivity extends AppCompatActivity
                 Riding riding = new Riding(latLng.latitude,latLng.longitude);
 
                 riding.time = stringdate;
-
-//                RidingList myRiding = new RidingList(riding_list);
-//
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).latitude);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).longitude);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0));
-//                RidingList myRiding = new RidingList(riding_list);
-//
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).latitude);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).longitude);
-//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0));
 
                 Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
                 //맵을 터치시 해당 위/경도로 라이딩 리스트에 추가한다.
@@ -1536,13 +1524,13 @@ public class MainActivity extends AppCompatActivity
                 GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {};
                 Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
 
-                List<List<Riding>> list = new ArrayList<List<Riding>>();
+               //  List<List<Riding>> list = new ArrayList<List<Riding>>();
 
                 for( String key : map.keySet() ){
                     Log.d("dbg", key + "///");
                     List<Riding> firebaseList = (List<Riding>) map.get(key);
 
-                    list.add(firebaseList);
+                   // list.add(firebaseList);
 
                     for (int i =0; i < firebaseList.size(); i ++){
 
@@ -1552,7 +1540,7 @@ public class MainActivity extends AppCompatActivity
 
                     }//리스트 출력
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
-                    list.get(0);
+                   //  list.get(0);
                 }
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
