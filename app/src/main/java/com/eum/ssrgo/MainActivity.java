@@ -72,6 +72,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.text.ParseException;
@@ -81,7 +83,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 
 
 public class MainActivity extends AppCompatActivity
@@ -122,7 +124,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     private long UPDATE_INTERVAL = 10000;  /* 10 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 sec */
-    private String user_id = null;
+    private String user_id = "ID";
 
     //poly line
     private PolylineOptions polylineOptions;
@@ -189,7 +191,6 @@ public class MainActivity extends AppCompatActivity
 
 
     private void init() {
-
         //Firebase Database
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -411,110 +412,6 @@ public class MainActivity extends AppCompatActivity
         }
         invalidateOptionsMenu();
     }
-
-    public void startRiding() {
-
-        layout_ridingData.setVisibility(View.VISIBLE);
-        fab.setVisibility(View.GONE);
-
-        TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
-        txt_speed.setText("Current Speed : " + mySpeed);
-
-
-        //Speed_run은 항상 True상태, Riding중 휴식에 대한 처리를 위해서 Flag변수를 둔건지?
-        //// TODO: 2016-11-03 Riding 휴식 시간 처리.
-        if (speed_run == true) {
-            /*speed_run = false;*/
-            Log.e(TAG, "Speed Thread end");
-        }
-        //DB테스트용 onClickListener
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                //RIding객체를 현재 좌표값으로 만들어주고, 그 객체를 List에 add만 해주면됨.
-                //FireBaseTest(latLng.latitude,latLng.longitude);
-
-                //RidingList ridinglist = new RidingList(riding);
-
-
-                SimpleDateFormat sdfNow = new SimpleDateFormat("HH:mm:ss");
-                Date date = new Date(System.currentTimeMillis());
-                String stringdate = sdfNow.format(date);
-                Time = stringdate;
-
-                SimpleDateFormat year = new SimpleDateFormat("yyyy");
-                Year = year.format(date);
-
-                SimpleDateFormat month = new SimpleDateFormat("MM");
-                Month = month.format(date);
-
-                SimpleDateFormat day = new SimpleDateFormat("dd");
-                Day = day.format(date);
-                Riding riding = new Riding(latLng.latitude,latLng.longitude);
-
-                riding.time = stringdate;
-
-                List<Riding> ridinglist = new ArrayList<Riding>();
-                ridinglist.add(riding);
-                RidingList myRiding = new RidingList(ridinglist);
-
-                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
-                //Log.e(TAG,"ridinglist_list = " + ridinglist_list.get(0).list.get(0).time);
-
-                Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
-
-                //mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).child(ridinglist_list.get(0).list.get(0).time);
-
-               // mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).setValue(ridinglist_list.listIterator());
-
-                //child(ridinglist.time).setValue(ridinglist.list.get(0));
-                //mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").setValue(riding_list);
-
-            }
-
-
-        });
-        //라이딩 종료 버튼
-        Button btn = (Button) findViewById(R.id.btn_cancel);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-/*
-                final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
-                final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
-
-                navigationView.setCheckedItem(R.id.nav_record_summary);
-                //fab버튼누르면 홈으로 바뀜.
-                navigationView.setCheckedItem(R.id.nav_home);
-                layout_ridingData.setVisibility(View.GONE);
-                layout_summaryData.setVisibility(View.VISIBLE);
-                fab.setVisibility(View.GONE);*/
-
-
-               /* RidingListGet();
-                drawPolyLine();
-                diffOfDate();*/
-
-                layout_ridingData.setVisibility(View.GONE);
-
-                mMap.clear();
-                if(user_id != null) {
-                    if(riding_list.size() != 0 ){
-                        //DB에 저장
-                        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").setValue(riding_list);
-                        riding_list = null;
-                        Year = null;
-                        Month = null;
-                        Day = null;
-                    }else {
-                        Toast.makeText(MainActivity.this, "DATA upload : " + riding_list.get(0).latitude + riding_list.get(0).longitude + riding_list.size(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-                fab.setVisibility(View.VISIBLE);
-            }
-        });
-    }
-
 
     public void startLocationUpdates() {
         if (ContextCompat.checkSelfPermission(thiscontext, android.Manifest.permission.ACCESS_FINE_LOCATION)
@@ -747,7 +644,7 @@ public class MainActivity extends AppCompatActivity
         MyLocation.LocationResult locationResult = new MyLocation.LocationResult() {
             @Override
             public void gotLocation(Location location) {
-                drawMarker(location);
+//                drawMarker(location);
             }
         };
 
@@ -1181,8 +1078,6 @@ public class MainActivity extends AppCompatActivity
                 Log.e(TAG,"key 번호에 대한 좌표 : " + dataSnapshot.hashCode());
                 Log.e(TAG,"key 번호에 대한 좌표 : " + dataSnapshot.getChildren().getClass());
                 Log.e(TAG,"날짜에 들어있는 갯수(latitude,longitude,time) 총 3개 : " + dataSnapshot.getChildrenCount());*/
-
-
             }
 
 
@@ -1206,14 +1101,7 @@ public class MainActivity extends AppCompatActivity
             public void onCancelled(DatabaseError databaseError) {
 
             }
-
-
-
-
         });
-
-
-
     }
 
 
@@ -1509,6 +1397,183 @@ public class MainActivity extends AppCompatActivity
         intentFilter.addAction(BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED);
         intentFilter.addAction(BluetoothLeService.ACTION_DATA_AVAILABLE);
         return intentFilter;
+    }
+
+    public void startRiding() {
+
+        layout_ridingData.setVisibility(View.VISIBLE);
+        fab.setVisibility(View.GONE);
+
+        TextView txt_speed = (TextView) findViewById(R.id.txt_speed);
+        txt_speed.setText("Current Speed : " + mySpeed);
+
+        riding_list = new ArrayList<Riding>();  //라이딩을 시작하면 리스트를 비워준다
+
+        //Speed_run은 항상 True상태, Riding중 휴식에 대한 처리를 위해서 Flag변수를 둔건지?
+        //// TODO: 2016-11-03 Riding 휴식 시간 처리.
+        if (speed_run == true) {
+            /*speed_run = false;*/
+            Log.e(TAG, "Speed Thread end");
+        }
+
+        //DB테스트용 onClickListener
+        //Riding 에 위도와 경도 시간이 들어갑니다. 그리고 그것을 List화 해서 저장을 한것을 ridinglist 에 넣어주고
+        //ridinglist 를 또 myriding에 넣어서 0번째 - 0번째 배열 , 1번째 1번째 배열 이렇게 나오게끔 저장과 불러오기를 하고싶습니다.
+        //이것때문에 2주가 막혀서 고민중입니다.. 부탁드릴게요.. ㅠㅠ
+
+        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(LatLng latLng) {
+                //RIding객체를 현재 좌표값으로 만들어주고, 그 객체를 List에 add만 해주면됨.
+                //FireBaseTest(latLng.latitude,latLng.longitude);
+                SimpleDateFormat sdfNow = new SimpleDateFormat("HH:mm:ss");
+                Date date = new Date(System.currentTimeMillis());
+                String stringdate = sdfNow.format(date);
+                Time = stringdate;
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                Year = year.format(date);
+
+                SimpleDateFormat month = new SimpleDateFormat("MM");
+                Month = month.format(date);
+
+                SimpleDateFormat day = new SimpleDateFormat("dd");
+                Day = day.format(date);
+                Riding riding = new Riding(latLng.latitude,latLng.longitude);
+
+                riding.time = stringdate;
+
+//                RidingList myRiding = new RidingList(riding_list);
+//
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).latitude);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).longitude);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0));
+//                RidingList myRiding = new RidingList(riding_list);
+//
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).time);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).latitude);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0).longitude);
+//                Log.e(TAG,"ridinglist_list = " + myRiding.list.get(0));
+
+                Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
+                //맵을 터치시 해당 위/경도로 라이딩 리스트에 추가한다.
+                riding_list.add(riding);
+//                mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).setValue(myRiding.list.get(0).time);
+
+            }
+
+
+        });
+        //라이딩 종료 버튼
+        Button btn = (Button) findViewById(R.id.btn_cancel);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+/*
+                final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
+                final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
+
+                navigationView.setCheckedItem(R.id.nav_record_summary);
+                //fab버튼누르면 홈으로 바뀜.
+                navigationView.setCheckedItem(R.id.nav_home);
+                layout_ridingData.setVisibility(View.GONE);
+                layout_summaryData.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.GONE);*/
+
+               /* RidingListGet();
+                drawPolyLine();
+                diffOfDate();*/
+
+                //종료 버튼을 눌렀을 때 저장한다.
+                layout_ridingData.setVisibility(View.GONE);
+
+                mMap.clear();
+                if(user_id != null) {
+                    if(riding_list.size() != 0 ){
+                        //맵을 터치시 저장했던 정보를 DB에 저장, 저장할 떄는 Riding List 자체를 넣는다.
+                        //저장 후 확인, 이걸 호출해서 리스트 로그를 출력
+
+                        //push로 주면 유니크한키로 자동 추가
+                        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").push().setValue(riding_list);
+                        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                RidingListGet(user_id, Year, Month, Day);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                        Toast.makeText(MainActivity.this, "DATA upload : " +riding_list.size(), Toast.LENGTH_SHORT).show();
+                    }else {
+                        Toast.makeText(MainActivity.this, "DATA empty", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                fab.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+
+    /**
+     * 파이어베이스에서 지정된 노드 타입으로 리스트를 얻어온다.
+     * @param user_id  //유저 이름의 데이터
+     * @param year  //해당 유저의 년도 데이터
+     * @param month  //해당 유저의 월 데이터
+     * @param day  //해당 유저의 일 데이터
+     */
+    private void RidingListGet(final String user_id, final String year, final String month, final String day) {;
+        //https://firebase.google.com/docs/reference/android/com/google/firebase/database/DataSnapshot <<참고
+        //데이터베이스 변수에 이벤트 설정, 이벤트 설정시 바로 현재 값을 동기화한다.
+        mDatabase.child("users").child(user_id).child(year).child(month).child(day).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {};
+                Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
+
+                List<List<Riding>> list = new ArrayList<List<Riding>>();
+
+                for( String key : map.keySet() ){
+                    Log.d("dbg", key + "///");
+                    List<Riding> firebaseList = (List<Riding>) map.get(key);
+
+                    list.add(firebaseList);
+
+                    for (int i =0; i < firebaseList.size(); i ++){
+
+                        Log.d("dbg", "시간 : " + firebaseList.get(i).time +
+                                "/위도" + firebaseList.get(i).latitude +
+                                "/경도" + firebaseList.get(i).longitude);
+
+                    }//리스트 출력
+                    //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
+                    list.get(0);
+                }
+                //설정했던 동기화는 해제시켜준다.
+                mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
 }
