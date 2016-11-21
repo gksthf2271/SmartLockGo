@@ -1,5 +1,7 @@
 package com.eum.ssrgo;
 
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -17,7 +19,6 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -72,6 +73,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.eum.ssrgo.R.id.map;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -101,7 +104,7 @@ public class MainActivity extends AppCompatActivity
     private Circle circle1;
     private Circle circle2;
 
-    private NavigationView navigationView;
+    public NavigationView navigationView;
     private View navHeaderView;
     private LocationManager locationManager;
     private int requestcode = 1;
@@ -317,8 +320,11 @@ public class MainActivity extends AppCompatActivity
                 .addOnConnectionFailedListener(this)
                 .build();
         mGoogleApiClient.connect();
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(map);
         mapFragment.getMapAsync(this);
+
+
         Log.e(TAG, "mapFragment Async succeed!");
 
 
@@ -500,11 +506,15 @@ public class MainActivity extends AppCompatActivity
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         int id = item.getItemId();
-        Fragment fragment = null;
+        android.app.Fragment fragment = null;
+
+        FragmentManager fragmentManager = getFragmentManager();
         final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
         final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
         if (id == R.id.nav_home) {
+            fragment = null;
+           // fragment = new MapFragment();
             Log.e(TAG, "네비 홈 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_home);
             layout_ridingData.setVisibility(View.GONE);
@@ -522,6 +532,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } else if (id == R.id.nav_riding) {
+          //  fragment = new MapFragment();
             Log.e(TAG, "네비 라이딩 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_riding);
             layout_ridingData.setVisibility(View.VISIBLE);
@@ -543,6 +554,7 @@ public class MainActivity extends AppCompatActivity
 
 
         } else if (id == R.id.nav_search) {
+        //    fragment = new MapFragment();
             Log.e(TAG, "네비 길찾기 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_search);
             layout_ridingData.setVisibility(View.GONE);
@@ -550,35 +562,52 @@ public class MainActivity extends AppCompatActivity
             fab.setVisibility(View.GONE);
 
         } else if (id == R.id.nav_record_summary) {
+         //   fragment = new MapFragment();
             Log.e(TAG, "네비 기록요약 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_record_summary);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
+
         } else if (id == R.id.nav_record_height) {
+         //   fragment = new MapFragment();
+            Log.e(TAG, "네비 고도정보 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_record_height);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
+
         } else if (id == R.id.nav_record_section) {
+            //라이딩 리스트 fragment로 전환
+            fragment = new TestExpandableListViewFragment();
+            Log.e(TAG, "네비 기록 목록 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_record_section);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
+
+
+
         } else if (id == R.id.nav_record_section_info) {
+         //   fragment = new MapFragment();
             navigationView.setCheckedItem(R.id.nav_record_section_info);
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
         } else if (id == R.id.nav_edit) {
-            Intent editintent = new Intent(thiscontext, EditActivity.class);
-            startActivity(editintent);
+            fragment = new EditFragment();
         }
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace( R.id.fragment_place, fragment );
+        fragmentTransaction.commit();
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 
     //구글맵 관련 핸들링은 onMapReady가 끝난 이후에 해야함 .
     //맵 객체 생성이 끝난 후에 핸들링 해야 NXE를 피할 수 있다
@@ -1020,6 +1049,8 @@ public class MainActivity extends AppCompatActivity
                     });
                 }
             };
+
+
 
     static class ViewHolder {
         TextView deviceName;

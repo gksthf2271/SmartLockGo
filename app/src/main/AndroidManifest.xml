@@ -68,12 +68,12 @@
             android:name=".SignUpActivity"
             android:label="@string/title_activity_login">
         </activity>
-        <activity
-            android:name=".EditActivity"
+<!--        <activity
+            android:name=".EditFragment"
             android:label="Edit"
             android:exported="true"
             >
-        </activity>
+        </activity>-->
 
         <activity android:name=".ble.DeviceControlActivity"/>
         <service android:name=".ble.BluetoothLeService" android:enabled="true"/>
