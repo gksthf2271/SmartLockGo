@@ -1524,13 +1524,13 @@ public class MainActivity extends AppCompatActivity
                 GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {};
                 Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
 
-               //  List<List<Riding>> list = new ArrayList<List<Riding>>();
+                 List<List<Riding>> list = new ArrayList<List<Riding>>();
 
                 for( String key : map.keySet() ){
                     Log.d("dbg", key + "///");
                     List<Riding> firebaseList = (List<Riding>) map.get(key);
 
-                   // list.add(firebaseList);
+                    list.add(firebaseList);
 
                     for (int i =0; i < firebaseList.size(); i ++){
 
@@ -1540,7 +1540,7 @@ public class MainActivity extends AppCompatActivity
 
                     }//리스트 출력
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
-                   //  list.get(0);
+                     list.get(0);
                 }
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
