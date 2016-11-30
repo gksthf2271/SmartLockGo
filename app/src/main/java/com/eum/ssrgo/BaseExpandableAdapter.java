@@ -17,11 +17,11 @@ public class BaseExpandableAdapter extends BaseExpandableListAdapter{
 	private LayoutInflater inflater = null;
 	private ViewHolder viewHolder = null;
 	
-	public BaseExpandableAdapter(Context c, ArrayList<String> groupList, 
+	public BaseExpandableAdapter(Context c, ArrayList<String> groupList,
 			ArrayList<ArrayList<String>> childList){
 		super();
 		this.inflater = LayoutInflater.from(c);
-		this.groupList = groupList;
+		this.groupList = (ArrayList<String>) groupList;
 		this.childList = childList;
 	}
 	
@@ -126,7 +126,9 @@ public class BaseExpandableAdapter extends BaseExpandableListAdapter{
 
 	@Override
 	public boolean isChildSelectable(int groupPosition, int childPosition) { return true; }
-	
+
+
+
 	class ViewHolder {
 /*		public ImageView iv_image;*/
 
