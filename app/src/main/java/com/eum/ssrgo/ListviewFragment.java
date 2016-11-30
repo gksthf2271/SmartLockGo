@@ -7,20 +7,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+
 
 public class ListviewFragment extends Fragment {
 
     private static final String Num = "num";
     private static final String Date = "date";
     private static final String Section1 = "section1";
-    private static  final String Section2 = "section2";
+    private static final String Section2 = "section2";
 
-    private  String mNum;
+    private String mNum;
     private String mDate;
     private String mSection1;
     private String mSection2;
 
-
+    public static ArrayList time = new ArrayList();
+    public static ArrayList latitude = new ArrayList();
+    public static ArrayList longitude = new ArrayList();
 
     public String getmNum() {
         return mNum;
@@ -59,14 +63,11 @@ public class ListviewFragment extends Fragment {
 
     public static ListviewFragment newInstance(String num, String date, String section1, String section2) {
         ListviewFragment fragment = new ListviewFragment();
-
-
+/*
             Bundle bundle_num = new Bundle();
             Bundle bundle_date = new Bundle();
             Bundle bundle_section1 = new Bundle();
             Bundle bundle_section2 = new Bundle();
-
-            Log.d("khs_lat",bundle_date.getString("latitude"));
 
             bundle_num.putString(Num, num);
             bundle_date.putString(Date, date);
@@ -80,9 +81,18 @@ public class ListviewFragment extends Fragment {
 
         for(int i=0; i<bundle_date.size() ;i++) {
             Log.d("khs_test :", String.valueOf(bundle_date));
+        }*/
+
+        for (int i = 0; ; i++) {
+            time.add(i, time);
+            latitude.add(i, latitude);
+            longitude.add(i, longitude);
+            if (time.get(i)==null)
+                break;
         }
         return fragment;
     }
+
 
 
 
@@ -116,6 +126,9 @@ public class ListviewFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
+            Log.d("khs_data1 : ", String.valueOf(time));
+            Log.d("khs_data2 : ", String.valueOf(latitude));
+            Log.d("khs_data3 : ", String.valueOf(longitude));
 
             Log.d("Test", "Param1 : " + mNum + " Param2 :" + mDate + "Param3 : " + mSection1 + "Param4 : " + mSection2);
 

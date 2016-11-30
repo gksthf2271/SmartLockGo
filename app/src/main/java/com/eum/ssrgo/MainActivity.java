@@ -50,7 +50,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.eum.ssrgo.ble.DeviceControlActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -98,30 +97,6 @@ public class MainActivity extends AppCompatActivity
     public  String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public  String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     private int test;
-
-    private LeDeviceListAdapter mLeDeviceListAdapter;
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler;
-    private BluetoothGatt mBluetoothGatt;
-    private static final long SCAN_PERIOD = 10000;
-    private String mDeviceName;
-    private String mDeviceAddress;
-    private ExpandableListView mGattServicesList;
-    private BluetoothLeService mBluetoothLeService;
-    private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
-            new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-
-    private static BluetoothGattCharacteristic characteristic;
-
-    private boolean mConnected = true;
-    private BluetoothGattCharacteristic mNotifyCharacteristic;
-
-    private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
-
-    public  String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
-    public  String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
-    private int test;
     private int j=0;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
@@ -142,6 +117,7 @@ public class MainActivity extends AppCompatActivity
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUID";
+
 
     private static final String TAG = "MainActivity";
     private static Context thiscontext;
@@ -262,12 +238,14 @@ public class MainActivity extends AppCompatActivity
         layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
 
 
+        //tv_layout.setVisibility(View.INVISIBLE);
         Button.OnClickListener onClickListener = new Button.OnClickListener() {
             @Override
             public void onClick(View view) {
                 switch (view.getId()) {
                     case R.id.bt_Join:
                         Intent intent_ = new Intent(thiscontext, SignUpActivity.class);
+                        /*intent_.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_SINGLE_TOP);*/
                         startActivityForResult(intent_, requestcode);
                         break;
                     case R.id.bt_Login:
@@ -298,7 +276,6 @@ public class MainActivity extends AppCompatActivity
             bt_login.setVisibility(View.GONE);
             bt_logout.setVisibility(View.VISIBLE);
             layout_userInfo.setVisibility(View.VISIBLE);
-
 
         } else if (requestCode == "LOGOUT") {
             Log.e(TAG, "requestCode is LOGOUT");
@@ -600,7 +577,6 @@ public class MainActivity extends AppCompatActivity
 
             Log.e(TAG, "네비 홈 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_home);
-
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
@@ -622,7 +598,6 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.commit();
             }
             Log.e(TAG, "네비 라이딩 눌렸다!");
-
 
             navigationView.setCheckedItem(R.id.nav_riding);
             layout_ridingData.setVisibility(View.VISIBLE);
@@ -649,7 +624,6 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.commit();
             }
             Log.e(TAG, "네비 길찾기 눌렸다!");
-
 
             navigationView.setCheckedItem(R.id.nav_search);
             layout_ridingData.setVisibility(View.GONE);
@@ -702,7 +676,6 @@ public class MainActivity extends AppCompatActivity
             Log.e(TAG, "네비 기록 목록 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_record_section);
 
-
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
@@ -719,8 +692,9 @@ public class MainActivity extends AppCompatActivity
             listView = (ListView)findViewById(R.id.listview);
             data = new ArrayList<ListviewFragment>();*/
 
+            Log.d("khs_ftime ", String.valueOf(f_time));
                 for (int i = 0; i < f_time.size(); i++) {
-                    Object obj_time = f_time.get(i);
+                  /*  Object obj_time = f_time.get(i);
                     bundle_date.putString("time", String.valueOf(obj_time));
                     Log.d("khs_bundle", String.valueOf(bundle_date));
                     fragment.setArguments(bundle_date);
@@ -733,8 +707,8 @@ public class MainActivity extends AppCompatActivity
                     Object obj_longitude = f_longitude.get(i);
                     bundle_long.putString("longitude", String.valueOf(obj_longitude));
                     Log.d("khs_bundle3", String.valueOf(bundle_long));
-                    fragment.setArguments(bundle_long);
-                    ListviewFragment.newInstance(String.valueOf(i),String.valueOf(bundle_date),String.valueOf(bundle_lat),String.valueOf(bundle_long));
+                    fragment.setArguments(bundle_long);*/
+                    ListviewFragment.newInstance(String.valueOf(i),String.valueOf(f_time),String.valueOf(f_latitude),String.valueOf(f_longitude));
                 }
 
             fragmentTransaction.add(R.id.fragment_place,fragment);
@@ -750,7 +724,6 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.commit();
             }
             navigationView.setCheckedItem(R.id.nav_record_section_info);
-
 
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
@@ -807,6 +780,7 @@ public class MainActivity extends AppCompatActivity
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
         builder.setAlwaysShow(true);
+
 
         mBluetoothAdapter.startLeScan(mLeScanCallback);
     }
@@ -1573,7 +1547,6 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
 
-
                 // 시간차이를 시간,분,초를 곱한 값으로 나누면 하루 단위가 나옴
 
                 long diff = endDate.getTime() - beginDate.getTime();
@@ -1598,15 +1571,20 @@ public class MainActivity extends AppCompatActivity
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
                 final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
-
+/*                navigationView.setCheckedItem(R.id.nav_record_summary);
+                //fab버튼누르면 홈으로 바뀜.
+                navigationView.setCheckedItem(R.id.nav_home);
+                layout_ridingData.setVisibility(View.GONE);
+                layout_summaryData.setVisibility(View.VISIBLE);
+                fab.setVisibility(View.GONE);*/
 
                /* RidingListGet();
                 drawPolyLine();
                 diffOfDate();*/
-                //fab버튼누르면 홈으로 바뀜.
-                navigationView.setCheckedItem(R.id.nav_home);
+
                 //종료 버튼을 눌렀을 때 저장한다.
                 layout_ridingData.setVisibility(View.GONE);
 
@@ -1636,18 +1614,13 @@ public class MainActivity extends AppCompatActivity
                     }
                 }
 
-
-                fab.setVisibility(View.VISIBLE);
                 navigationView.setCheckedItem(R.id.nav_record_summary);
-                //fab버튼누르면 홈으로 바뀜.
-
-
-
-                layout_ridingData.setVisibility(View.GONE);
                 layout_summaryData.setVisibility(View.VISIBLE);
+                layout_ridingData.setVisibility(View.GONE);
                 fab.setVisibility(View.GONE);
                 drawPolyLine();
                 diffOfDate();
+
                 TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
                 sum_ridingdistance.setText(string_totaldistance+"km");
 
@@ -1717,6 +1690,16 @@ public class MainActivity extends AppCompatActivity
                         Log.d("dbg", "시간 : " + firebaseList.get(i).time +
                                 "/위도" + firebaseList.get(i).latitude +
                                 "/경도" + firebaseList.get(i).longitude);
+
+                        f_time.add(firebaseList.get(i).time);
+                        f_latitude.add(firebaseList.get(i).latitude);
+                        f_longitude.add(firebaseList.get(i).longitude);
+
+                        Log.d("copy", String.valueOf(f_time.get(i)));
+                        Log.d("copy", String.valueOf(f_latitude.get(i)));
+                        Log.d("copy", String.valueOf(f_longitude.get(i)));
+
+
 
                     }//리스트 출력
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
