@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eum.ssrgo.ble;
+package com.eum.ssrgo;
 
 import java.util.HashMap;
 
@@ -35,6 +35,7 @@ public class SampleGattAttributes {
         attributes.put("00002a29-0000-1000-8000-00805f9b34fb", "Manufacturer Name String");
     }
 
+    //넘어온 uuid를 식별하여 attribute에 저장되어있는지 확인 후 set
     public static String lookup(String uuid, String defaultName) {
         String name = attributes.get(uuid);
         return name == null ? defaultName : name;

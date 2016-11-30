@@ -13,11 +13,11 @@
             android:title="라이딩" />
         <item
             android:id="@+id/nav_search"
-            android:icon="@mipmap/list"
+            android:icon="@mipmap/nav_search"
             android:title="자전거 길찾기" />
         <item
             android:id="@+id/nav_record"
-            android:icon="@mipmap/list"
+            android:icon="@mipmap/nav_search"
             android:title="주행기록">
 
         <menu>
@@ -27,15 +27,19 @@
         </item>
             <item
                 android:id="@+id/nav_record_summary"
+                android:icon="@mipmap/summary"
                 android:title="기록요약"/>
             <item
                 android:id="@+id/nav_record_height"
+                android:icon="@mipmap/height"
                 android:title="고도정보"/>
             <item
+                android:icon="@mipmap/search"
                 android:id="@+id/nav_record_section"
                 android:title="구간별정보"/>
 
             <item
+                android:icon="@mipmap/flag"
                 android:id="@+id/nav_record_section_info"
                 android:title="해당구간정보" />
 

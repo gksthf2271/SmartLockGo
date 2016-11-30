@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.eum.ssrgo.ble;
+package com.eum.ssrgo;
 
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -68,7 +68,8 @@ public class BluetoothLeService extends Service {
 
     // Implements callback methods for GATT events that the app cares about.  For example,
     // connection change and services discovered.
-    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+
+    public final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
@@ -104,6 +105,8 @@ public class BluetoothLeService extends Service {
                                          int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+
+                Log.e(TAG,"onCharacteristicRead ..characteristic is : " + characteristic.toString());
             }
         }
 
@@ -126,6 +129,8 @@ public class BluetoothLeService extends Service {
         // This is special handling for the Heart Rate Measurement profile.  Data parsing is
         // carried out as per profile specifications:
         // http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicViewer.aspx?u=org.bluetooth.characteristic.heart_rate_measurement.xml
+
+
         if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
             int flag = characteristic.getProperties();
             int format = -1;
@@ -151,20 +156,6 @@ public class BluetoothLeService extends Service {
                 for(byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-                Log.d(TAG, "inputdata"+String.valueOf(data));
-
-                String go = "s";
-                String go_stop ="g";
-                String back = "gb";
-                String back_stop = "sg";
-
-
-                byte[] tx = back.getBytes();
-
-
-                characteristic.setValue(tx);
-                Log.d(TAG, String.valueOf(tx));
-                mBluetoothGatt.writeCharacteristic(characteristic);
             }
         }
         Log.d(TAG, "STEP3");
@@ -191,6 +182,7 @@ public class BluetoothLeService extends Service {
         // After using a given device, you should make sure that BluetoothGatt.close() is called
         // such that resources are cleaned up properly.  In this particular example, close() is
         // invoked when the UI is disconnected from the Service.
+        Log.e(TAG,"onUnbind called!");
         close();
         return super.onUnbind(intent);
     }
@@ -278,6 +270,7 @@ public class BluetoothLeService extends Service {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
+        Log.e(TAG,"disconnect is called!");
         mBluetoothGatt.disconnect();
     }
 
@@ -289,6 +282,7 @@ public class BluetoothLeService extends Service {
         if (mBluetoothGatt == null) {
             return;
         }
+        Log.e(TAG,"close called!");
         mBluetoothGatt.close();
         mBluetoothGatt = null;
     }
