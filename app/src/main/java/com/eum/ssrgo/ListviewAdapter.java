@@ -9,63 +9,77 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+public class ListViewAdapter extends BaseAdapter {
+    // Adapter에 추가된 데이터를 저장하기 위한 ArrayList
+    private ArrayList<ListViewItem> listViewItemList = new ArrayList<ListViewItem>() ;
 
-public class ListviewAdapter extends BaseAdapter {
-    Context context;
-    ArrayList<ListviewFragment> data;
-
-    TextView num_textView;
-    TextView riding_date_textView;
-    TextView section1_textView;
-    TextView section2_textView;
+    // ListViewAdapter의 생성자
+    public ListViewAdapter() {
 
 
-    public ListviewAdapter(Context context,ArrayList<ListviewFragment> data){
-        this.context = context;
-        this.data=data;
     }
 
-    /*int getCount()는 이 리스트뷰가 몇개의 아이템을 가지고있는지를 알려주는 함수입니다. 우리는 arraylist의 size(갯수) 만큼 가지고있으므로
-    return 0 ; ->      this.data.size()();
-    으로 변경합니다.*/
+    // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
     @Override
-    public int getCount(){return this.data.size();}
+    public int getCount() {
+        return listViewItemList.size() ;
+    }
 
-/*
-    Object getItem(int position)은 현재 어떤 아이템인지를 알려주는 부분으로 우리는 arraylist에 저장되있는 객체중 position에 해당하는것을 가져올것이므로
-    return null; ->return this.data.get(position)으로 변경합니다.*/
+    // position에 위치한 데이터를 화면에 출력하는데 사용될 View를 리턴. : 필수 구현
     @Override
-    public String getItem(int position){return String.valueOf(this.data.get(position));}
+    public View getView(int position, View convertView, ViewGroup parent) {
+        final int pos = position;
+        final Context context = parent.getContext();
 
-/*
-    현재 어떤 포지션인지를 알려주는 부분으로
-    return 0; -> return postion으로 변경합니다*/
-    @Override
-    public long getItemId(int position){return position;}
-
-
-
-
-
-
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent){
-        if(convertView==null) {
-            LayoutInflater.from(context).inflate(R.layout.riding_list, null);
-            /*convertView=inflater.inflate(layout,parent,false);*/
-
-            convertView = LayoutInflater.from(context).inflate(R.layout.riding_list,null);
-            num_textView = (TextView)convertView.findViewById(R.id.riding_list_num);
-            riding_date_textView = (TextView)convertView.findViewById(R.id.riding_list_date);
-            section1_textView = (TextView)convertView.findViewById(R.id.section1);
-            section2_textView  =(TextView)convertView.findViewById(R.id.section2);
-
-            num_textView.setText(data.get(position).getmNum());
-            riding_date_textView.setText(data.get(position).getmDate());
-            section1_textView.setText(data.get(position).getmSection1());
-            section2_textView.setText(data.get(position).getmSection2());
-
+        // "listview_item" Layout을 inflate하여 convertView 참조 획득.
+        if (convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.riding_list, parent, false);
         }
-            return convertView;
+
+        // 화면에 표시될 View(Layout이 inflate된)으로부터 위젯에 대한 참조 획득
+
+        TextView num_textView = (TextView)convertView.findViewById(R.id.riding_list_num);
+        TextView riding_date_textView = (TextView)convertView.findViewById(R.id.riding_list_date);
+        TextView section1_textView = (TextView)convertView.findViewById(R.id.section1);
+        TextView section2_textView  =(TextView)convertView.findViewById(R.id.section2);
+
+
+        // Data Set(listViewItemList)에서 position에 위치한 데이터 참조 획득
+        ListViewItem listViewItem = listViewItemList.get(position);
+
+
+        num_textView.setText((CharSequence) listViewItem.getmNum());
+        riding_date_textView.setText((CharSequence) listViewItem.getmDate());
+        section1_textView.setText((CharSequence) listViewItem.getmSection1());
+        section2_textView.setText((CharSequence) listViewItem.getmSection2());
+
+        return convertView;
     }
+
+    // 지정한 위치(position)에 있는 데이터와 관계된 아이템(row)의 ID를 리턴. : 필수 구현
+    @Override
+    public long getItemId(int position) {
+        return position ;
+    }
+
+    // 지정한 위치(position)에 있는 데이터 리턴 : 필수 구현
+    @Override
+    public Object getItem(int position) {
+        return listViewItemList.get(position) ;
+    }
+
+    // 아이템 데이터 추가를 위한 함수. 개발자가 원하는대로 작성 가능.
+    public void addItem(String num, String date, String section1, String section2) {
+        ListViewItem item = new ListViewItem();
+
+        item.setmNum(num);
+        item.setmDate(date);
+        item.setmSection1(section1);
+        item.setmSection2(section2);
+
+        listViewItemList.add(item);
+    }
+
+
 }

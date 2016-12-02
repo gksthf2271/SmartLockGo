@@ -197,8 +197,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-
-
     // 시작시간, 끝시간
     private String startTime=null;
     private String endTime=null;
@@ -378,7 +376,6 @@ public class MainActivity extends AppCompatActivity
 
 
 
-        /////////
 
         thiscontext = getApplicationContext();
         setContentView(R.layout.activity_main);
@@ -680,42 +677,18 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
             RidingListGet(user_id, Year, Month, Day);
-
+/*
             //기록목록 저장 번들
             Bundle bundle_date = new Bundle();
             Bundle bundle_lat = new Bundle();
-            Bundle bundle_long = new Bundle();
-/*            ListView listView;
-            ListviewAdapter ListviewAdapter;
-            ArrayList<ListviewFragment> data;
+            Bundle bundle_long = new Bundle();*/
 
-            listView = (ListView)findViewById(R.id.listview);
-            data = new ArrayList<ListviewFragment>();*/
-
-            Log.d("khs_ftime ", String.valueOf(f_time));
                 for (int i = 0; i < f_time.size(); i++) {
-                  /*  Object obj_time = f_time.get(i);
-                    bundle_date.putString("time", String.valueOf(obj_time));
-                    Log.d("khs_bundle", String.valueOf(bundle_date));
-                    fragment.setArguments(bundle_date);
-
-                    Object obj_latitude = f_latitude.get(i);
-                    bundle_lat.putString("latitude", String.valueOf(obj_latitude));
-                    Log.d("khs_bundle2", String.valueOf(bundle_lat));
-                    fragment.setArguments(bundle_lat);
-
-                    Object obj_longitude = f_longitude.get(i);
-                    bundle_long.putString("longitude", String.valueOf(obj_longitude));
-                    Log.d("khs_bundle3", String.valueOf(bundle_long));
-                    fragment.setArguments(bundle_long);*/
-                    ListviewFragment.newInstance(String.valueOf(i),String.valueOf(f_time),String.valueOf(f_latitude),String.valueOf(f_longitude));
+                    new ListviewFragment(String.valueOf(i),String.valueOf(f_time.get(i)),String.valueOf(f_latitude.get(i)),String.valueOf(f_longitude.get(i)));
                 }
 
             fragmentTransaction.add(R.id.fragment_place,fragment);
-            //fragmentTransaction.add(R.id.fragment_place, ListviewFragment.newInstance("1",String.valueOf(bundle_date),String.valueOf(bundle_lat),String.valueOf(bundle_long)));
             fragmentTransaction.commit();
-/*            fragment = (ListviewFragment) getFragmentManager().findFragmentById(R.id.riding_list_row);
-            fragment.getDate()*/
 
 
         } else if (id == R.id.nav_record_section_info) {
@@ -728,6 +701,7 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
+
             RidingListGet(user_id,Year,Month,Day);
             drawPolyLine();
 
@@ -1023,12 +997,16 @@ public class MainActivity extends AppCompatActivity
 
     //location의 각종 정보를 LOGGING
     public void getLocationStatement(Location location) {
+
         Log.e(TAG, "==========================================================================");
         Log.e(TAG, "Lon :" + location.getLongitude() + "  // Lat:" + location.getLatitude() + "  // Provider:" + location.getProvider() + "  // Speed:" + mySpeed);
         Log.e(TAG, "Accuracy:" + location.getAccuracy() + "  // Time:" + location.getTime() + "  // Bearing:" + location.getBearing()); // bearing = heading to location
         Log.e(TAG, "User_ID:" + user_id );
         Log.e(TAG, "==========================================================================");
-
+/*        if (gara == 1) {
+            first_time = String.valueOf(location.getTime());
+            gara=0;
+        }*/
 
     }
 
@@ -1533,15 +1511,22 @@ public class MainActivity extends AppCompatActivity
                 Date beginDate = null;
                 Date endDate = null;
 
+                riding.time = strNow;
+                Log.e(TAG, "time : " +  riding.time + "      latitude : " + riding.latitude + "      longitude : " + riding.longitude );
+                //맵을 터치시 해당 위/경도로 라이딩 리스트에 추가한다.
+                riding_list.add(riding);
+//                mDatabase.child("users").child("TEST").child(Year).child(Month).child(Day).setValue(myRiding.list.get(0).time);
+
+
                 try {
-                    if (riding_list.size() == 0)
+                    if(riding_list.get(0).time == null)
                     {
-                        beginDate = sdfNow.parse(Time);
+                        riding_list.add(riding);
+                        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").push().setValue(riding_list);
                     }
-                    else {
                     beginDate = sdfNow.parse(riding_list.get(0).time);
                     endDate = sdfNow.parse(riding_list.get(riding_list.size()-1).time);
-                    }
+
 
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -1695,9 +1680,9 @@ public class MainActivity extends AppCompatActivity
                         f_latitude.add(firebaseList.get(i).latitude);
                         f_longitude.add(firebaseList.get(i).longitude);
 
-                        Log.d("copy", String.valueOf(f_time.get(i)));
+         /*               Log.d("copy", String.valueOf(f_time.get(i)));
                         Log.d("copy", String.valueOf(f_latitude.get(i)));
-                        Log.d("copy", String.valueOf(f_longitude.get(i)));
+                        Log.d("copy", String.valueOf(f_longitude.get(i)));*/
 
 
 

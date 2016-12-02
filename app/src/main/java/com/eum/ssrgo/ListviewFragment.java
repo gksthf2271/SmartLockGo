@@ -1,138 +1,118 @@
 package com.eum.ssrgo;
 
-import android.app.Fragment;
+import android.app.ListFragment;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
 
 
-public class ListviewFragment extends Fragment {
+public class ListviewFragment extends ListFragment {
 
-    private static final String Num = "num";
+/*    private static final String Num = "num";
     private static final String Date = "date";
     private static final String Section1 = "section1";
-    private static final String Section2 = "section2";
+    private static final String Section2 = "section2";*/
 
-    private String mNum;
-    private String mDate;
-    private String mSection1;
-    private String mSection2;
+    //MainActivity에서 받아온 데이터들을 현 프래그먼트 리스트에 넣어두기위한 전역변수 선언
+    public static ArrayList t_num = new ArrayList();
+    public static ArrayList t_time = new ArrayList();
+    public static ArrayList t_latitude = new ArrayList();
+    public static ArrayList t_longitude = new ArrayList();
+    public static ArrayList strArray = new ArrayList();
 
-    public static ArrayList time = new ArrayList();
-    public static ArrayList latitude = new ArrayList();
-    public static ArrayList longitude = new ArrayList();
 
-    public String getmNum() {
-        return mNum;
+    //어답터 객체생성
+    ListViewAdapter adapter ;
+
+    public ListviewFragment(){
+
     }
 
-    public void setmNum(String mNum) {
-        this.mNum = mNum;
-    }
+    //MainActivity에서 데이터 가져옴
+    public ListviewFragment(String num, String date, String section1, String section2) {
 
-    public String getmDate() {
-        return mDate;
-    }
+        t_num.add(num);
+        t_time.add(date);
+        t_latitude.add(section1);
+        t_longitude.add(section2);
 
-    public void setmDate(String mDate) {
-        this.mDate = mDate;
-    }
 
-    public String getmSection1() {
-        return mSection1;
-    }
 
-    public void setmSection1(String mSection1) {
-        this.mSection1 = mSection1;
-    }
+        Log.d("date ","넘버 :"+ num + ","+"날짜 :"+ date + ","+"lat :" + section1 + ","+"lon :" + section2);
 
-    public String getmSection2() {
-        return mSection2;
-    }
-
-    public void setmSection2(String mSection2) {
-        this.mSection2 = mSection2;
-    }
-
-    public ListviewFragment() {
-    }
-
-    public static ListviewFragment newInstance(String num, String date, String section1, String section2) {
-        ListviewFragment fragment = new ListviewFragment();
-/*
-            Bundle bundle_num = new Bundle();
-            Bundle bundle_date = new Bundle();
-            Bundle bundle_section1 = new Bundle();
-            Bundle bundle_section2 = new Bundle();
-
-            bundle_num.putString(Num, num);
-            bundle_date.putString(Date, date);
-            bundle_section1.putString(Section1, section1);
-            bundle_section2.putString(Section2, section2);
-
-            fragment.setArguments(bundle_num);
-            fragment.setArguments(bundle_date);
-            fragment.setArguments(bundle_section1);
-            fragment.setArguments(bundle_section2);
-
-        for(int i=0; i<bundle_date.size() ;i++) {
-            Log.d("khs_test :", String.valueOf(bundle_date));
-        }*/
-
-        for (int i = 0; ; i++) {
-            time.add(i, time);
-            latitude.add(i, latitude);
-            longitude.add(i, longitude);
-            if (time.get(i)==null)
-                break;
-        }
-        return fragment;
     }
 
 
-
-
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-/*
-        ArrayList mNum = new ArrayList();
-        ArrayList mDate = new ArrayList();
-        ArrayList mSection1 = new ArrayList();
-        ArrayList mSection2 = new ArrayList();
-
-
-        mNum.add(getArguments().getString(Num));
-        mDate.add(getArguments().getString(Date));
-        mSection1.add(getArguments().getString(Section1));
-        mSection2.add(getArguments().getString(Section2));*/
-
-
-      if(getArguments() != null) {
-            mNum = getArguments().getString(Num);
-            mDate = getArguments().getString(Date);
-            mSection1 = getArguments().getString(Section1);
-            mSection2 = getArguments().getString(Section2);
-        }
-
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        Log.d("onCreateView 실행","");
+/*        ArrayAdapter adapter = new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1,t_num) ;*/
+        adapter = new ListViewAdapter();
+        setListAdapter(adapter);
 
-            Log.d("khs_data1 : ", String.valueOf(time));
-            Log.d("khs_data2 : ", String.valueOf(latitude));
-            Log.d("khs_data3 : ", String.valueOf(longitude));
+        //축척된 위도,경도값 getLocation함수로 전달
+        for(int i =0; i<t_latitude.size(); i++) {
+            getLocation(String.valueOf(t_latitude.get(i)),String.valueOf(t_longitude.get(i)));
+        }
 
-            Log.d("Test", "Param1 : " + mNum + " Param2 :" + mDate + "Param3 : " + mSection1 + "Param4 : " + mSection2);
+            int j=1;
+        //아이템 추가.
+        for(int i=0; i<t_num.size(); i++) {
+           /* if(t_num.size() > 0 && t_num.size() <100)*/
+            if(i%10==0) {
+                adapter.addItem(String.valueOf(j), String.valueOf(t_time.get(i)), String.valueOf(strArray.get(i)), String.valueOf(strArray.get(i+2)));
+                j++;
+            }
+        }
 
 
-        return inflater.inflate(R.layout.listview_list, container, false);
+        return super.onCreateView(inflater, container, savedInstanceState);
+
     }
+    public void getLocation(String slat, String slng){
+        //주소 저장
+        String str = null;
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.KOREA);
+
+        //형변환  String -> Double
+        double lat = Double.valueOf(slat).doubleValue();
+        double lng = Double.valueOf(slng).doubleValue();
+       /* Log.d("형변환 확인 ", String.valueOf(lat));*/
+
+        List<Address> address;
+        try {
+            if (geocoder != null) {
+                address = geocoder.getFromLocation(lat, lng, 1);
+                if (address != null && address.size() > 0) {
+                    str = address.get(0).getAddressLine(0).toString();
+                    strArray.add(str);
+                }
+            }
+        } catch (IOException e) {
+            Log.e("주소 오류", "주소를 찾지 못하였습니다.");
+            e.printStackTrace();
+        }
+
+    }
+
+/*    @Override
+    public void onListItemClick (ListView l, View v, int position, long id) {
+        // get TextView's Text.
+        ListViewItem item = (ListViewItem) l.getItemAtPosition(position);
+
+
+        // TODO : use item data.
+    }*/
 }
