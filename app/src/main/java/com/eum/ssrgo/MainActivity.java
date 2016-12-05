@@ -1,6 +1,5 @@
 package com.eum.ssrgo;
 
-import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
@@ -111,7 +110,7 @@ public class MainActivity extends AppCompatActivity
     private BluetoothLeService mBluetoothLeService;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-    Fragment fragment;
+    android.app.Fragment fragment;
     private static BluetoothGattCharacteristic characteristic;
 
     private boolean mConnected = true;
@@ -132,7 +131,7 @@ public class MainActivity extends AppCompatActivity
     private GoogleMap mMap;
     private long UPDATE_INTERVAL = 10000;  /* 10 secs */
     private long FASTEST_INTERVAL = 5000; /* 5 sec */
-    private String user_id = "ID";
+    private String user_id = null;
 
     //poly line
     private PolylineOptions polylineOptions;
@@ -1722,18 +1721,7 @@ public class MainActivity extends AppCompatActivity
 
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
                      list.get(0);
-                }
 
-                for(String key : mapList.keySet()) {
-                    Log.d("khs_test1",key);
-                    ArrayList list_time = mapList.get(key);
-                    Log.d("khs_test2", String.valueOf(list_time.get(2)));
-                    Log.d("khs_test3", list_time.toString());
-                }
-
-
-                for(int i=0; i<f_key.size(); i++) {
-                    Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
                 }
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
