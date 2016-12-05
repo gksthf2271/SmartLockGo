@@ -18,6 +18,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -925,6 +926,8 @@ public class MainActivity extends AppCompatActivity
                 Log.e(TAG,"data : " + totaldistance );
 
                 PolylineOptions rectOptions = new PolylineOptions()
+                        .width(3)
+                        .color(Color.BLUE)
                         .add(thisLatLon).add(CurrenLatLon);
                 Polyline polyline = mMap.addPolyline(rectOptions);
 
@@ -1120,6 +1123,8 @@ public class MainActivity extends AppCompatActivity
             Location.distanceBetween(riding_list.get(i).latitude, riding_list.get(i).longitude,riding_list.get(i+1).latitude ,riding_list.get(i+1).longitude , distance);
 
             PolylineOptions rectOptions = new PolylineOptions()
+                    .width(3)
+                    .color(Color.BLUE)
                     .add(ridingLatLng1).add(ridingLatLng2);
             Polyline polyline = mMap.addPolyline(rectOptions);
 
@@ -1607,37 +1612,70 @@ public class MainActivity extends AppCompatActivity
                 drawPolyLine();
                 diffOfDate();
 
-                TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
-                sum_ridingdistance.setText(string_totaldistance+"km");
-
-                TextView sum_ridingstarttime = (TextView) findViewById(R.id.sum_starttime);
-                sum_ridingstarttime.setText(riding_list.get(0).time);
-
-                TextView sum_ridingendtime = (TextView) findViewById(R.id.sum_endtime);
-                sum_ridingendtime.setText(riding_list.get(riding_list.size()-1).time);
-
-                TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
-                sum_ridingtime.setText(diffTime);
-
-                TextView sum_avrspeed = (TextView) findViewById(R.id.sum_avrspeed);
-                avgspeed =(totaldistance/diff)*3600;
-                avgspeed = Math.round(avgspeed*100)/100.0f;
-                averagespeed = Float.toString(avgspeed);
-                sum_avrspeed.setText(averagespeed+"km/h");
-
-                TextView sum_highspeed = (TextView) findViewById(R.id.sum_highspeed);
-                sum_highspeed.setText(stringhighSpeed+"km/h");
-
-                TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
-                setCal_kg_m();
-                sum_calorie.setText((cal_kg_m*diff/60)+"kcal");
+                if(diff == 0)
+                {
 
 
 
-                Log.e(TAG,"st :"+riding_list.get(0).time );
-                Log.e(TAG,"et :"+riding_list.get(riding_list.size()-1).time);
+                    drawPolyLine();
+                    diffOfDate();
+                    TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
+                    sum_ridingdistance.setText(string_totaldistance + "km");
+
+                    TextView sum_ridingstarttime = (TextView) findViewById(R.id.sum_starttime);
+                    sum_ridingstarttime.setText("00:00:00");
+
+                    TextView sum_ridingendtime = (TextView) findViewById(R.id.sum_endtime);
+                    sum_ridingendtime.setText("00:00:00");
+
+                    TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
+                    sum_ridingtime.setText("00:00:00");
+
+                    TextView sum_avrspeed = (TextView) findViewById(R.id.sum_avrspeed);
+                    sum_avrspeed.setText(" 0 km/h");
+
+                    TextView sum_highspeed = (TextView) findViewById(R.id.sum_highspeed);
+                    sum_highspeed.setText(" 0 km/h");
+
+                    TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
+                    setCal_kg_m();
+                    sum_calorie.setText(" 0 kcal");
+
+                }
+                    else {
+
+                    drawPolyLine();
+                    diffOfDate();
+                    TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
+                    sum_ridingdistance.setText(string_totaldistance + "km");
+
+                    TextView sum_ridingstarttime = (TextView) findViewById(R.id.sum_starttime);
+                    sum_ridingstarttime.setText(riding_list.get(0).time);
+
+                    TextView sum_ridingendtime = (TextView) findViewById(R.id.sum_endtime);
+                    sum_ridingendtime.setText(riding_list.get(riding_list.size() - 1).time);
+
+                    TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
+                    sum_ridingtime.setText(diffTime);
+
+                    TextView sum_avrspeed = (TextView) findViewById(R.id.sum_avrspeed);
+                    avgspeed = (totaldistance / diff) * 3600;
+                    avgspeed = Math.round(avgspeed * 100) / 100.0f;
+                    averagespeed = Float.toString(avgspeed);
+                    sum_avrspeed.setText(averagespeed + "km/h");
+
+                    TextView sum_highspeed = (TextView) findViewById(R.id.sum_highspeed);
+                    sum_highspeed.setText(stringhighSpeed + "km/h");
+
+                    TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
+                    setCal_kg_m();
+                    sum_calorie.setText((cal_kg_m * diff / 60) + "kcal");
 
 
+                    Log.e(TAG, "st :" + riding_list.get(0).time);
+                    Log.e(TAG, "et :" + riding_list.get(riding_list.size() - 1).time);
+
+                }
 
 
 

@@ -41,7 +41,7 @@ public class ListviewFragment extends ListFragment {
     boolean run = true;
 
     //어답터 객체생성
-    ListViewAdapter adapter ;
+    ListviewAdapter adapter ;
     public ListviewFragment(){
 
     }
@@ -68,7 +68,7 @@ public class ListviewFragment extends ListFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         Log.d("onCreateView 실행","");
-        adapter = new ListViewAdapter();
+        adapter = new ListviewAdapter();
         setListAdapter(adapter);
 
         Log.d("date ","maplist "+ mapList.get(t_key.get(0))+"num :"+ t_num.get(0) +"날짜 :"+ t_time.get(0) + ","+"lat :" + t_longitude.get(0) + ","+"lon :" + t_longitude.get(0));

@@ -25,12 +25,14 @@
             android:id="@+id/bt_Join"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="JOIN US"/>
+            android:text="회원가입"
+            android:backgroundTint="@android:color/holo_blue_dark" />
         <Button
             android:id="@+id/bt_Login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="LOGIN"/>
+            android:text="로그인"
+            android:backgroundTint="@android:color/holo_blue_dark" />
         <Button
             android:id="@+id/bt_Logout"
             android:layout_width="wrap_content"

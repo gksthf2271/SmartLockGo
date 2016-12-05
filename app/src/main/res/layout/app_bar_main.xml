@@ -36,6 +36,8 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         android:visibility="visible"
-        android:src="@mipmap/bicycle" />
+        android:src="@mipmap/bicycle"
+        android:background="#95489af1"
+        app:backgroundTint="@color/colorPrimary" />
 
 </android.support.design.widget.CoordinatorLayout>
