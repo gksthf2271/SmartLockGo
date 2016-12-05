@@ -88,6 +88,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.eum.ssrgo.R.id.map;
+
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener, OnMapReadyCallback,
@@ -171,7 +173,12 @@ public class MainActivity extends AppCompatActivity
     public ArrayList f_time = new ArrayList();
     public ArrayList f_latitude = new ArrayList();
     public ArrayList f_longitude = new ArrayList();
-
+    public ArrayList<String> f_key = new ArrayList<String>();
+    public ArrayList data_set = new ArrayList();
+    HashMap<String, ArrayList> mapList = new HashMap<String, ArrayList>();
+    HashMap<String, ArrayList> mapList_time = new HashMap<String, ArrayList>();
+    HashMap<String, ArrayList> mapList_lat = new HashMap<String, ArrayList>();
+    HashMap<String, ArrayList> mapList_log = new HashMap<String, ArrayList>();
     private long backKeyPressedTime = 0;
 
     private double mySpeed;
@@ -423,7 +430,7 @@ public class MainActivity extends AppCompatActivity
         mGoogleApiClient.connect();
 
         //MapAsync 시작
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(map);
         mapFragment.getMapAsync(this);
         Log.e(TAG, "mapFragment Async succeed!");
 
@@ -571,7 +578,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentTransaction.remove(fragment);
                 fragmentTransaction.commit();
             }
-
+            mMap.clear();
             Log.e(TAG, "네비 홈 눌렸다!");
             navigationView.setCheckedItem(R.id.nav_home);
             layout_ridingData.setVisibility(View.GONE);
@@ -589,7 +596,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
         } else if (id == R.id.nav_riding) {
-
+            mMap.clear();
             if(fragment != null) {
                 fragmentTransaction.remove(fragment);
                 fragmentTransaction.commit();
@@ -648,8 +655,8 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
-            RidingListGet(user_id,Year,Month,Day);
-            drawPolyLine();
+/*            RidingListGet(user_id,Year,Month,Day);
+            drawPolyLine();*/
             diffOfDate();
             TextView sum_ridingtime = (TextView) findViewById(R.id.distance);
             // sum_ridingtime.setText(totaldistance);
@@ -666,7 +673,6 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
             RidingListGet(user_id,Year,Month,Day);
-            drawPolyLine();
 
         } else if (id == R.id.nav_record_section) {
             fragment = new ListviewFragment();
@@ -677,16 +683,12 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
             RidingListGet(user_id, Year, Month, Day);
-/*
-            //기록목록 저장 번들
-            Bundle bundle_date = new Bundle();
-            Bundle bundle_lat = new Bundle();
-            Bundle bundle_long = new Bundle();*/
+            Log.d("mapList 2 :", String.valueOf(mapList.get(f_key.get(0))));
 
                 for (int i = 0; i < f_time.size(); i++) {
-                    new ListviewFragment(String.valueOf(i),String.valueOf(f_time.get(i)),String.valueOf(f_latitude.get(i)),String.valueOf(f_longitude.get(i)));
+                    new ListviewFragment(f_key, String.valueOf(i), String.valueOf(f_time.get(i)), String.valueOf(f_latitude.get(i)), String.valueOf(f_longitude.get(i)));
                 }
-
+                new ListviewFragment(mapList, data_set);
             fragmentTransaction.add(R.id.fragment_place,fragment);
             fragmentTransaction.commit();
 
@@ -1664,7 +1666,12 @@ public class MainActivity extends AppCompatActivity
 
                  List<List<Riding>> list = new ArrayList<List<Riding>>();
 
-                for( String key : map.keySet() ){
+
+                for(String key : map.keySet()){
+                    data_set.clear();
+                    f_time.clear();
+                    f_latitude.clear();
+                    f_longitude.clear();
                     Log.d("dbg", key + "///");
                     List<Riding> firebaseList = (List<Riding>) map.get(key);
 
@@ -1676,20 +1683,57 @@ public class MainActivity extends AppCompatActivity
                                 "/위도" + firebaseList.get(i).latitude +
                                 "/경도" + firebaseList.get(i).longitude);
 
+
                         f_time.add(firebaseList.get(i).time);
                         f_latitude.add(firebaseList.get(i).latitude);
                         f_longitude.add(firebaseList.get(i).longitude);
 
-         /*               Log.d("copy", String.valueOf(f_time.get(i)));
-                        Log.d("copy", String.valueOf(f_latitude.get(i)));
-                        Log.d("copy", String.valueOf(f_longitude.get(i)));*/
 
+                        data_set.add(firebaseList.get(i).time);
+                        data_set.add(firebaseList.get(i).latitude);
+                        data_set.add(firebaseList.get(i).longitude);
 
-
+                       // mapList.put(key, data_set);
+                        //Log.d("mapList ", String.valueOf(mapList.get(key)));
                     }//리스트 출력
+
+
+
+                        mapList.put(key, data_set);
+                        f_key.add(key);
+
+
+/*                        mapList_time.put(key, f_time);
+                        Log.d("key_time ", "키값 " + key + ", " + String.valueOf(mapList_time.get(key)));
+                        //list_time.put(key, mapList_time.get(key));
+
+
+                        mapList_lat.put(key, f_latitude);
+                        Log.d("key_lat ","키값 "+key+", "+  String.valueOf(mapList_lat.get(key)));
+                        //list_lat.put(key,mapList_lat.get(key));
+
+
+                        mapList_log.put(key, f_longitude);
+                        Log.d("key_log ","키값 "+key+", "+  String.valueOf(mapList_log.get(key)));
+                        //list_log.put(key,mapList_log.get(key));*/
+
+
+                    //Log.d("mapList3 ", "키 값 "+key +", 위치 값 " + mapList.get(key));
+
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
                      list.get(0);
+                }
 
+                for(String key : mapList.keySet()) {
+                    Log.d("khs_test1",key);
+                    ArrayList list_time = mapList.get(key);
+                    Log.d("khs_test2", String.valueOf(list_time.get(2)));
+                    Log.d("khs_test3", list_time.toString());
+                }
+
+
+                for(int i=0; i<f_key.size(); i++) {
+                    Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
                 }
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
