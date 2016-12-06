@@ -15,16 +15,18 @@
             android:id="@+id/nav_search"
             android:icon="@mipmap/nav_search"
             android:title="자전거 길찾기" />
-        <item
-            android:id="@+id/nav_record"
-            android:icon="@mipmap/nav_search"
-            android:title="주행기록">
+
+    </group>
+
+
+
+
+
+    <item android:title="주행기록">
 
             <menu>
-                <item
-                    android:title="" />
-            </menu>
-        </item>
+
+
             <item
                 android:id="@+id/nav_record_summary"
                 android:icon="@mipmap/summary"
@@ -42,9 +44,12 @@
                 android:icon="@mipmap/flag"
                 android:id="@+id/nav_record_section_info"
                 android:title="해당구간정보" />
+            </menu>
+            </item>
 
-        <item
-            android:title="">
+
+
+            <item android:title="설정">
             <menu>
                 <item
                 android:id="@+id/nav_edit"
@@ -52,7 +57,7 @@
                 android:title="설정"/>
 
             </menu>
-        </item>
-    </group>
+            </item>
+
 
 </menu>

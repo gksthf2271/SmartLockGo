@@ -39,7 +39,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -373,10 +372,7 @@ public class MainActivity extends AppCompatActivity
                 tv_userEmail.setText(email);
                 tv_userName.setText(name + "님 환영합니다.");
 
-                // 기록요약탭에 일단 user_id 값을 뿌리게 해봄;
-                //// TODO: 2016-11-03 관련 작업 마무리 할 것. 안쓰면 지우고, View는 private static으로 선언하고 init()내에서 findViewById 해줄것.
-                TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
-                sum_ridingtime.setText(user_id);
+
             } else {
                 Log.e(TAG, "resultCode is " + resultCode);
             }
@@ -498,7 +494,7 @@ public class MainActivity extends AppCompatActivity
 
         AlertDialog.Builder d = new AlertDialog.Builder(this);
 
-        if (System.currentTimeMillis() > backKeyPressedTime + 2000) {
+        if (System.currentTimeMillis() > backKeyPressedTime  ) {
             backKeyPressedTime = System.currentTimeMillis();
             d.setMessage("정말 종료하시겠습니까?");
             d.setPositiveButton("예", new DialogInterface.OnClickListener() {
@@ -519,7 +515,7 @@ public class MainActivity extends AppCompatActivity
         d.show();
     }
 
-    @Override
+    /*@Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         if (!mScanning) {
@@ -533,7 +529,7 @@ public class MainActivity extends AppCompatActivity
                     R.layout.actionbar_indeterminate_progress);
         }
         return true;
-    }
+    }*/
 
     public void close() {
         if (mBluetoothGatt == null) {
@@ -544,7 +540,7 @@ public class MainActivity extends AppCompatActivity
         mBluetoothGatt = null;
     }
 
-    @Override
+   /* @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_scan:
@@ -563,7 +559,7 @@ public class MainActivity extends AppCompatActivity
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
+    }*/
 
 
     ////todo Navigation 내부 Item의 handling 구현 할 것
@@ -645,7 +641,30 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Error");
+            alert.setMessage("개발중인 기능입니다.");
 
+            alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    fab.setVisibility(View.VISIBLE);
+                    fab = (FloatingActionButton) findViewById(R.id.fab);
+                    fab.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startLocationUpdates();
+                            //fab버튼누르면 라이딩으로 바뀜.
+                            navigationView.setCheckedItem(R.id.nav_riding);
+                            //Riding 시작
+                            startRiding();
+                        }
+                    });
+                }
+
+            });
+            alert.show();
 
             // 데이터베이스에서 list 출력 테스트(test)
             for(int i=0 ; i < riding_list.size() ; i++) {
@@ -667,11 +686,75 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
-/*            RidingListGet(user_id,Year,Month,Day);
-            drawPolyLine();*/
-            diffOfDate();
-            TextView sum_ridingtime = (TextView) findViewById(R.id.distance);
-            // sum_ridingtime.setText(totaldistance);
+//            RidingListGet(user_id,Year,Month,Day);
+           drawPolyLine();
+                diffOfDate();
+
+                if(diff == 0)
+                {
+
+
+
+                    drawPolyLine();
+                    diffOfDate();
+                    TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
+                    sum_ridingdistance.setText(string_totaldistance + "km");
+
+                    TextView sum_ridingstarttime = (TextView) findViewById(R.id.sum_starttime);
+                    sum_ridingstarttime.setText("00:00:00");
+
+                    TextView sum_ridingendtime = (TextView) findViewById(R.id.sum_endtime);
+                    sum_ridingendtime.setText("00:00:00");
+
+                    TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
+                    sum_ridingtime.setText("00:00:00");
+
+                    TextView sum_avrspeed = (TextView) findViewById(R.id.sum_avrspeed);
+                    sum_avrspeed.setText(" 0 km/h");
+
+                    TextView sum_highspeed = (TextView) findViewById(R.id.sum_highspeed);
+                    sum_highspeed.setText(" 0 km/h");
+
+                    TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
+                    setCal_kg_m();
+                    sum_calorie.setText(" 0 kcal");
+
+                }
+                    else {
+
+                    drawPolyLine();
+                    diffOfDate();
+                    TextView sum_ridingdistance = (TextView) findViewById(R.id.sum_distance);
+                    sum_ridingdistance.setText(string_totaldistance + "km");
+
+                    TextView sum_ridingstarttime = (TextView) findViewById(R.id.sum_starttime);
+                    sum_ridingstarttime.setText(riding_list.get(0).time);
+
+                    TextView sum_ridingendtime = (TextView) findViewById(R.id.sum_endtime);
+                    sum_ridingendtime.setText(riding_list.get(riding_list.size() - 1).time);
+
+                    TextView sum_ridingtime = (TextView) findViewById(R.id.sum_ridingtime);
+                    sum_ridingtime.setText(diffTime);
+
+                    TextView sum_avrspeed = (TextView) findViewById(R.id.sum_avrspeed);
+                    avgspeed = (totaldistance / diff) * 3600;
+                    avgspeed = Math.round(avgspeed * 100) / 100.0f;
+                    averagespeed = Float.toString(avgspeed);
+                    sum_avrspeed.setText(averagespeed + "km/h");
+
+                    TextView sum_highspeed = (TextView) findViewById(R.id.sum_highspeed);
+                    sum_highspeed.setText(stringhighSpeed + "km/h");
+
+                    TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
+                    setCal_kg_m();
+                    sum_calorie.setText(Math.round((cal_kg_m * diff / 60*100)/100.0f) + "kcal");
+
+
+                    Log.e(TAG, "st :" + riding_list.get(0).time);
+                    Log.e(TAG, "et :" + riding_list.get(riding_list.size() - 1).time);
+
+                }
+
 
         } else if (id == R.id.nav_record_height) {
             if(fragment != null) {
@@ -684,7 +767,30 @@ public class MainActivity extends AppCompatActivity
             layout_ridingData.setVisibility(View.GONE);
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
-            RidingListGet(user_id,Year,Month,Day);
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Error");
+            alert.setMessage("개발중인 기능입니다.");
+
+            alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    fab.setVisibility(View.VISIBLE);
+                    fab = (FloatingActionButton) findViewById(R.id.fab);
+                    fab.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            startLocationUpdates();
+                            //fab버튼누르면 라이딩으로 바뀜.
+                            navigationView.setCheckedItem(R.id.nav_riding);
+                            //Riding 시작
+                            startRiding();
+                        }
+                    });
+                }
+
+            });
+            alert.show();
 
         } else if (id == R.id.nav_record_section) {
             fragment = new ListviewFragment();
@@ -695,7 +801,7 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
             RidingListGet(user_id, Year, Month, Day);
-            Log.d("mapList 2 :", String.valueOf(mapList.get(f_key.get(0))));
+            //Log.d("mapList 2 :", String.valueOf(mapList.get(f_key.get(0))));
 
                 for (int i = 0; i < f_time.size(); i++) {
                     new ListviewFragment(String.valueOf(i), String.valueOf(f_time.get(i)), String.valueOf(f_latitude.get(i)), String.valueOf(f_longitude.get(i)));
@@ -939,11 +1045,11 @@ public class MainActivity extends AppCompatActivity
                 totaldistance = totaldistance + moving_distance[0];
                 Log.e(TAG,"data : " + totaldistance );
 
-                PolylineOptions rectOptions = new PolylineOptions()
-                        .width(3)
-                        .color(Color.BLUE)
+                /*PolylineOptions rectOptions = new PolylineOptions()
+                        .width(5)
+                        .color(Color.BLACK)
                         .add(thisLatLon).add(CurrenLatLon);
-                Polyline polyline = mMap.addPolyline(rectOptions);
+                Polyline polyline = mMap.addPolyline(rectOptions);*/
 
                 Riding riding = new Riding(thisLat,thisLon);
 
@@ -1137,8 +1243,8 @@ public class MainActivity extends AppCompatActivity
             Location.distanceBetween(riding_list.get(i).latitude, riding_list.get(i).longitude,riding_list.get(i+1).latitude ,riding_list.get(i+1).longitude , distance);
 
             PolylineOptions rectOptions = new PolylineOptions()
-                    .width(3)
-                    .color(Color.BLUE)
+                    .width(5)
+                    .color(Color.BLACK)
                     .add(ridingLatLng1).add(ridingLatLng2);
             Polyline polyline = mMap.addPolyline(rectOptions);
 
@@ -1705,20 +1811,29 @@ public class MainActivity extends AppCompatActivity
 
         //라이딩 종료 버튼
         Button btn = (Button) findViewById(R.id.btn_cancel);
-        btn.setOnClickListener(new View.OnClickListener() {
+        btn.setOnClickListener(new View.OnClickListener()  {
+
+
+
+
+
             @Override
+
+
             public void onClick(View v) {
+
 
                 final RelativeLayout layout_summaryData = (RelativeLayout) findViewById(R.id.layout_summaryData);
                 final RelativeLayout layout_ridingData = (RelativeLayout) findViewById(R.id.layout_ridingData);
-/*                navigationView.setCheckedItem(R.id.nav_record_summary);
+
+                /*navigationView.setCheckedItem(R.id.nav_record_summary);
                 //fab버튼누르면 홈으로 바뀜.
                 navigationView.setCheckedItem(R.id.nav_home);
                 layout_ridingData.setVisibility(View.GONE);
                 layout_summaryData.setVisibility(View.VISIBLE);
                 fab.setVisibility(View.GONE);*/
 
-               /* RidingListGet();
+                /* RidingListGet();
                 drawPolyLine();
                 diffOfDate();*/
 
@@ -1815,7 +1930,8 @@ public class MainActivity extends AppCompatActivity
 
                     TextView sum_calorie = (TextView) findViewById(R.id.sum_calorie);
                     setCal_kg_m();
-                    sum_calorie.setText((cal_kg_m * diff / 60) + "kcal");
+
+                    sum_calorie.setText(Math.round((cal_kg_m * diff / 60)*100d)/100d + "kcal");
 
 
                     Log.e(TAG, "st :" + riding_list.get(0).time);
@@ -1834,9 +1950,21 @@ public class MainActivity extends AppCompatActivity
 
                 if(lock_state) mBluetoothAdapter.startLeScan(mLeScanCallback);
 
+                mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                    @Override
+                    public void onMapClick(LatLng latLng) {
+
+
+                    }
+                });
 
             }
+
         });
+
+
+
+
     }
 
 
@@ -1847,32 +1975,37 @@ public class MainActivity extends AppCompatActivity
      * @param month  //해당 유저의 월 데이터
      * @param day  //해당 유저의 일 데이터
      */
-    public void RidingListGet(final String user_id, final String year, final String month, final String day) {;
+    public void RidingListGet(final String user_id, final String year, final String month, final String day) {
+
         //https://firebase.google.com/docs/reference/android/com/google/firebase/database/DataSnapshot <<참고
         //데이터베이스 변수에 이벤트 설정, 이벤트 설정시 바로 현재 값을 동기화한다.
-        mDatabase.child("users").child(user_id).child(year).child(month).child(day).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {};
-                Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
+        if (user_id != null && year != null && month != null && day != null) {
+            mDatabase.child("users").child(user_id).child(year).child(month).child(day).addChildEventListener(new ChildEventListener() {
 
-                List<List<Riding>> list = new ArrayList<List<Riding>>();
-                int c=0;
 
-                for(String key : map.keySet()){
-                    data_set.clear();
-                    t_list.clear();
-                    Log.d("dbg", key + "///");
-                    List<Riding> firebaseList = (List<Riding>) map.get(key);
+                @Override
+                public void onChildAdded(DataSnapshot dataSnapshot, String s) {
 
-                    list.add(firebaseList);
+                    GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {
+                    };
+                    Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
 
-                    for (int i =0; i < firebaseList.size(); i ++){
+                    List<List<Riding>> list = new ArrayList<List<Riding>>();
+                    int c = 0;
 
-                        Log.d("dbg", "시간 : " + firebaseList.get(i).time +
-                                "/위도" + firebaseList.get(i).latitude +
-                                "/경도" + firebaseList.get(i).longitude);
+                    for (String key : map.keySet()) {
+                        data_set.clear();
+                        Log.d("dbg", key + "///");
+                        List<Riding> firebaseList = (List<Riding>) map.get(key);
+
+                        list.add(firebaseList);
+
+                        for (int i = 0; i < firebaseList.size(); i++) {
+
+                            Log.d("dbg", "시간 : " + firebaseList.get(i).time +
+                                    "/위도" + firebaseList.get(i).latitude +
+                                    "/경도" + firebaseList.get(i).longitude);
 
 
               /*          f_time.add(firebaseList.get(i).time);
@@ -1880,52 +2013,47 @@ public class MainActivity extends AppCompatActivity
                         f_longitude.add(firebaseList.get(i).longitude);*/
 
 
-                        data_set.add(firebaseList.get(i).time);
-                        data_set.add(String.valueOf(firebaseList.get(i).latitude));
-                        data_set.add(String.valueOf(firebaseList.get(i).longitude));
+                            data_set.add(firebaseList.get(i).time);
+                            data_set.add(firebaseList.get(i).latitude);
+                            data_set.add(firebaseList.get(i).longitude);
+
+                            mapList.put(key, String.valueOf(data_set));
+                            //Log.d("mapList ", String.valueOf(mapList.get(key)));
+                        }//리스트 출력
 
                         mapList.put(key, String.valueOf(data_set));
+                        Log.d("mapList3 ", "키 값 " + key + ", 위치 값 " + mapList.get(key));
+                        f_key.add(key);
+                        //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
+                        list.get(0);
+                    }
 
-                        //Log.d("mapList ", String.valueOf(mapList.get(key)));
-                    }//리스트 출력
-
-                    mapList.put(key, String.valueOf(data_set));
-
-                    Log.d("mapList3 ", "키 값 "+key +", 위치 값 " + mapList.get(key));
-
-                    f_key.add(key);
-                    //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
-                    list.get(0);
-                }
-
-                for(int i=0; i<f_key.size(); i++){
-                    Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
+                    for (int i = 0; i < f_key.size(); i++) {
+                        Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
+                    }
+                    //설정했던 동기화는 해제시켜준다.
+                    mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
                 }
 
 
-                //설정했던 동기화는 해제시켜준다.
-                mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
-            }
+                @Override
+                public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                }
 
+                @Override
+                public void onChildRemoved(DataSnapshot dataSnapshot) {
+                }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-            }
+                @Override
+                public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+                }
 
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-            }
-        });
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                }
+            });
+        }
     }
-
     public void setCal_kg_m()
     {
         if(avgspeed <= 13)
