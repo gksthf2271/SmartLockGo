@@ -38,19 +38,19 @@ public class ListviewFragment extends ListFragment {
     public static HashMap<String, ArrayList> mapList_time;
     public static HashMap<String, ArrayList> mapList_lat;
     public static HashMap<String, ArrayList> mapList_log;
-    public static ArrayList t_list_time = null;
-    public static ArrayList t_list_lat = null;
-    public static ArrayList t_list_log = null;
+
 
     ProgressDialog dialog;
     boolean run = true;
+    int count=1;
 
     //어답터 객체생성
     ListviewAdapter adapter ;
     public ListviewFragment(){
 
     }
-    public ListviewFragment(HashMap maplist,ArrayList data_set, HashMap maplist_t, HashMap maplist_lat, HashMap maplist_log ){
+    public ListviewFragment(ArrayList key,HashMap maplist,ArrayList data_set, HashMap maplist_t, HashMap maplist_lat, HashMap maplist_log ){
+        t_key=key;
         mapList = (HashMap<String, ArrayList>) maplist.clone();
         mapList_time = (HashMap<String, ArrayList>) maplist_t.clone();
         mapList_lat = (HashMap<String, ArrayList>) maplist_lat.clone();
@@ -59,9 +59,8 @@ public class ListviewFragment extends ListFragment {
     }
 
     //MainActivity에서 데이터 가져옴
-    public ListviewFragment(ArrayList key,String num, String date, String section1, String section2) {
+    public ListviewFragment(String num, String date, String section1, String section2) {
 
-        t_key=key;
         t_num.add(num);
         t_time.add(date);
         t_latitude.add(section1);
@@ -75,51 +74,65 @@ public class ListviewFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        Log.d("onCreateView 실행","");
+        Log.d("onCreateView 실행", "");
         adapter = new ListviewAdapter();
         setListAdapter(adapter);
 
-        Log.d("date ","key "+ "maplist "+ mapList.get(t_key.get(0))+"num :"+ t_num.get(0) +"날짜 :"+ t_time.get(0) + ","+"lat :" + t_longitude.get(0) + ","+"lon :" + t_longitude.get(0));
+        for(int i=0; i<t_key.size(); i++)
+        Log.d("date ","maplist "+ mapList.get(t_key.get(i)));
 
-
-        /*for (String key : mapList.keySet()) {*/
-/*        for(int i=0; i<t_key.size(); i++) {
+        ///   for (String key : mapList.keySet()) {
+ /*       for(int i=0; i<t_key.size(); i++) {
             Log.d("f_test", String.valueOf(t_key.get(i)));
             //ArrayList t_list = mapList.get(t_key.get(i));
             t_list_time = mapList_time.get(t_key.get(i));
             t_list_lat = mapList_lat.get(t_key.get(i));
             t_list_log = mapList_log.get(t_key.get(i));
             for(int c=0; c<t_list_time.size(); c++){
-            Log.d("f_test1",", t_list_time :" +  String.valueOf(t_list_time.get(c)) + ", t_list_lat :" + String.valueOf(t_list_lat.get(c)) + ", t_list_log :" + String.valueOf(t_list_log.get(c)));
+            Log.d("f_test1",", t_list_time :" +  String.valueOf(t_list_time.get(c)) +
+                    ", t_list_lat :" + String.valueOf(t_list_lat.get(c)) +
+                    ", t_list_log :" + String.valueOf(t_list_log.get(c)));
             }
 
         }*/
 
 
         Log.e("F_Thread", "Thread start");
-        timeThread();
         //축척된 위도,경도값 getLocation함수로 전달
-        for(int i =0; i<t_list_lat.size(); i++) {
-            getLocation(String.valueOf(t_list_lat.get((Integer) t_key.get(i))),String.valueOf(t_list_log.get((Integer) t_key.get(i))));
-        }
-        if(run==true)
-        {
-            run=false;
-            dialog.dismiss();
+        ArrayList t_list_time = null;
+        ArrayList t_list_lat = null;
+        ArrayList t_list_log = null;
+
+
+        int cot=0;
+        for (String key : mapList.keySet()) {
+
+
+            Log.d("f_test", String.valueOf(key));
+
+            ArrayList t_list=  mapList.get(key);
+
+            //t_list.add(mapList.get(key));
+            Log.d("t_list 값 : ", String.valueOf(t_list.get(0)));
+
+            getLocation(String.valueOf(t_list.get(1)), String.valueOf(t_list.get(2)));
+            getLocation(String.valueOf(t_list.get(t_list.size() - 2)), String.valueOf(t_list.get(t_list.size() - 1)));
+
+            adapter.addItem(String.valueOf(t_num.get(count)), String.valueOf(t_list.get(0)), String.valueOf(strArray.get(cot)), String.valueOf(strArray.get(cot+1)));
+
+            cot = cot+2;
+            count++;
         }
 
 
-        for(int i=0; i<t_key.size(); i++) {
-            int j = 1;
-                adapter.addItem(String.valueOf(j), String.valueOf(t_list_time.get(0)), String.valueOf(strArray.get(0)), String.valueOf(strArray.get(strArray.size()-1)));
-            j++;
-        }
+
+
         return super.onCreateView(inflater, container, savedInstanceState);
-
     }
+
     public void getLocation(String slat, String slng){
         //주소 저장
-        strArray.clear();
+//        strArray.clear();
         String str = null;
         Geocoder geocoder = new Geocoder(getActivity(), Locale.KOREA);
 

@@ -181,10 +181,14 @@ public class MainActivity extends AppCompatActivity
     public ArrayList f_longitude = new ArrayList();
     public ArrayList<String> f_key = new ArrayList<String>();
     public ArrayList data_set = new ArrayList();
-    HashMap<String, ArrayList> mapList = new HashMap<String, ArrayList>();
+    HashMap<String, String> mapList = new HashMap<String, String>();
     HashMap<String, ArrayList> mapList_time = new HashMap<String, ArrayList>();
     HashMap<String, ArrayList> mapList_lat = new HashMap<String, ArrayList>();
     HashMap<String, ArrayList> mapList_log = new HashMap<String, ArrayList>();
+
+    public ArrayList time_list = new ArrayList();
+    public ArrayList lat_list = new ArrayList();
+    public ArrayList log_list = new ArrayList();
     private long backKeyPressedTime = 0;
 
     private double mySpeed;
@@ -693,9 +697,9 @@ public class MainActivity extends AppCompatActivity
             Log.d("mapList 2 :", String.valueOf(mapList.get(f_key.get(0))));
 
                 for (int i = 0; i < f_time.size(); i++) {
-                    new ListviewFragment(f_key, String.valueOf(i), String.valueOf(f_time.get(i)), String.valueOf(f_latitude.get(i)), String.valueOf(f_longitude.get(i)));
+                    new ListviewFragment(String.valueOf(i), String.valueOf(f_time.get(i)), String.valueOf(f_latitude.get(i)), String.valueOf(f_longitude.get(i)));
                 }
-                new ListviewFragment(mapList, data_set,mapList_time,mapList_lat,mapList_log);
+                new ListviewFragment(f_key,mapList, data_set,mapList_time,mapList_lat,mapList_log);
             fragmentTransaction.add(R.id.fragment_place,fragment);
             fragmentTransaction.commit();
 
@@ -1852,14 +1856,11 @@ public class MainActivity extends AppCompatActivity
                 GenericTypeIndicator<Map<String, List<Riding>>> genericTypeIndicator = new GenericTypeIndicator<Map<String, List<Riding>>>() {};
                 Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
 
-                 List<List<Riding>> list = new ArrayList<List<Riding>>();
+                List<List<Riding>> list = new ArrayList<List<Riding>>();
 
 
                 for(String key : map.keySet()){
                     data_set.clear();
-                    f_time.clear();
-                    f_latitude.clear();
-                    f_longitude.clear();
                     Log.d("dbg", key + "///");
                     List<Riding> firebaseList = (List<Riding>) map.get(key);
 
@@ -1872,60 +1873,33 @@ public class MainActivity extends AppCompatActivity
                                 "/경도" + firebaseList.get(i).longitude);
 
 
-                        f_time.add(firebaseList.get(i).time);
+              /*          f_time.add(firebaseList.get(i).time);
                         f_latitude.add(firebaseList.get(i).latitude);
-                        f_longitude.add(firebaseList.get(i).longitude);
+                        f_longitude.add(firebaseList.get(i).longitude);*/
 
 
                         data_set.add(firebaseList.get(i).time);
                         data_set.add(firebaseList.get(i).latitude);
                         data_set.add(firebaseList.get(i).longitude);
 
-                       // mapList.put(key, data_set);
+                        mapList.put(key, String.valueOf(data_set));
                         //Log.d("mapList ", String.valueOf(mapList.get(key)));
                     }//리스트 출력
 
-
-
-                        mapList.put(key, data_set);
-                        f_key.add(key);
-
-
-                        mapList_time.put(key, f_time);
-                        Log.d("key_time ", "키값 " + key + ", " + String.valueOf(mapList_time.get(key)));
-                        //list_time.put(key, mapList_time.get(key));
-
-
-                        mapList_lat.put(key, f_latitude);
-                        Log.d("key_lat ","키값 "+key+", "+  String.valueOf(mapList_lat.get(key)));
-                        //list_lat.put(key,mapList_lat.get(key));
-
-
-                        mapList_log.put(key, f_longitude);
-                        Log.d("key_log ","키값 "+key+", "+  String.valueOf(mapList_log.get(key)));
-                        //list_log.put(key,mapList_log.get(key));
-
-
-                    //Log.d("mapList3 ", "키 값 "+key +", 위치 값 " + mapList.get(key));
-
+                    mapList.put(key, String.valueOf(data_set));
+                    Log.d("mapList3 ", "키 값 "+key +", 위치 값 " + mapList.get(key));
+                    f_key.add(key);
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
-                     list.get(0);
+                    list.get(0);
                 }
 
- /*               for(String key : mapList.keySet()) {
-                    Log.d("khs_test1",key);
-                    ArrayList list_time = mapList.get(key);
-                    Log.d("khs_test2", String.valueOf(list_time.get(2)));
-                    Log.d("khs_test3", list_time.toString());
-                }*/
-
-
                 for(int i=0; i<f_key.size(); i++) {
-            //        Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
+                    Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
                 }
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
             }
+
 
             @Override
             public void onChildChanged(DataSnapshot dataSnapshot, String s) {
