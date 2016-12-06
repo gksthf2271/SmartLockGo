@@ -181,10 +181,11 @@ public class MainActivity extends AppCompatActivity
     public ArrayList f_longitude = new ArrayList();
     public ArrayList<String> f_key = new ArrayList<String>();
     public ArrayList data_set = new ArrayList();
-    HashMap<String, String> mapList = new HashMap<String, String>();
+    public HashMap<String, String> mapList = new HashMap<String, String>();
     HashMap<String, ArrayList> mapList_time = new HashMap<String, ArrayList>();
     HashMap<String, ArrayList> mapList_lat = new HashMap<String, ArrayList>();
     HashMap<String, ArrayList> mapList_log = new HashMap<String, ArrayList>();
+    public ArrayList t_list = new ArrayList();
 
     public ArrayList time_list = new ArrayList();
     public ArrayList lat_list = new ArrayList();
@@ -1857,10 +1858,11 @@ public class MainActivity extends AppCompatActivity
                 Map<String, List<Riding>> map = dataSnapshot.getValue(genericTypeIndicator);
 
                 List<List<Riding>> list = new ArrayList<List<Riding>>();
-
+                int c=0;
 
                 for(String key : map.keySet()){
                     data_set.clear();
+                    t_list.clear();
                     Log.d("dbg", key + "///");
                     List<Riding> firebaseList = (List<Riding>) map.get(key);
 
@@ -1879,23 +1881,28 @@ public class MainActivity extends AppCompatActivity
 
 
                         data_set.add(firebaseList.get(i).time);
-                        data_set.add(firebaseList.get(i).latitude);
-                        data_set.add(firebaseList.get(i).longitude);
+                        data_set.add(String.valueOf(firebaseList.get(i).latitude));
+                        data_set.add(String.valueOf(firebaseList.get(i).longitude));
 
                         mapList.put(key, String.valueOf(data_set));
+
                         //Log.d("mapList ", String.valueOf(mapList.get(key)));
                     }//리스트 출력
 
                     mapList.put(key, String.valueOf(data_set));
+
                     Log.d("mapList3 ", "키 값 "+key +", 위치 값 " + mapList.get(key));
+
                     f_key.add(key);
                     //firebaseList 리스트를 어딘가에 저장해서 사용하시면 됩니다.
                     list.get(0);
                 }
 
-                for(int i=0; i<f_key.size(); i++) {
+                for(int i=0; i<f_key.size(); i++){
                     Log.d("mapList4 ", "key " + f_key.get(i) + ", 위치 값 " + mapList.get(f_key.get(i)));
                 }
+
+
                 //설정했던 동기화는 해제시켜준다.
                 mDatabase.child("users").child(user_id).child(year).child(month).child(day).removeEventListener(this);
             }

@@ -14,6 +14,7 @@ import android.widget.ListView;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -33,8 +34,8 @@ public class ListviewFragment extends ListFragment {
     public static ArrayList t_longitude = new ArrayList();
     public static ArrayList strArray = new ArrayList();
     public static ArrayList t_key = new ArrayList();
-    public ArrayList t_data_set = new ArrayList();
-    public static HashMap<String,ArrayList> mapList;
+    public ArrayList<String> t_data_set = new ArrayList();
+    public static HashMap<String, String> mapList;
     public static HashMap<String, ArrayList> mapList_time;
     public static HashMap<String, ArrayList> mapList_lat;
     public static HashMap<String, ArrayList> mapList_log;
@@ -51,7 +52,7 @@ public class ListviewFragment extends ListFragment {
     }
     public ListviewFragment(ArrayList key,HashMap maplist,ArrayList data_set, HashMap maplist_t, HashMap maplist_lat, HashMap maplist_log ){
         t_key=key;
-        mapList = (HashMap<String, ArrayList>) maplist.clone();
+        mapList = (HashMap<String, String>) maplist.clone();
         mapList_time = (HashMap<String, ArrayList>) maplist_t.clone();
         mapList_lat = (HashMap<String, ArrayList>) maplist_lat.clone();
         mapList_log = (HashMap<String, ArrayList>) maplist_log.clone();
@@ -109,16 +110,30 @@ public class ListviewFragment extends ListFragment {
 
 
             Log.d("f_test", String.valueOf(key));
+            Log.d("f_test2", String.valueOf(mapList.get(key)));
 
-            ArrayList t_list=  mapList.get(key);
+            String str = mapList.get(key).substring(1, mapList.get(key).length()-1);
+            Log.d("str",str);
+
+            List<String> items = Arrays.asList(str.split("\\s*,\\s*"));
+
+
+            Log.d("haha",items.get(0));
+            Log.d("haha",items.get(1));
+            Log.d("haha",items.get(items.size()-1));
+
+            //ArrayList t_list = mapList.get(key);
+
+
 
             //t_list.add(mapList.get(key));
-            Log.d("t_list 값 : ", String.valueOf(t_list.get(0)));
+           // Log.d("t_list 값 : ", String.valueOf(t_list.get(0)));
 
-            getLocation(String.valueOf(t_list.get(1)), String.valueOf(t_list.get(2)));
-            getLocation(String.valueOf(t_list.get(t_list.size() - 2)), String.valueOf(t_list.get(t_list.size() - 1)));
+            getLocation(items.get(1), items.get(2));
+            getLocation(items.get(items.size() - 2), items.get(items.size() - 1));
 
-            adapter.addItem(String.valueOf(t_num.get(count)), String.valueOf(t_list.get(0)), String.valueOf(strArray.get(cot)), String.valueOf(strArray.get(cot+1)));
+            adapter.addItem(String.valueOf(count), String.valueOf(items.get(0)), String.valueOf(strArray.get(cot)), String.valueOf(strArray.get(cot+1)));
+
 
             cot = cot+2;
             count++;
