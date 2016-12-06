@@ -822,8 +822,8 @@ public class MainActivity extends AppCompatActivity
             layout_summaryData.setVisibility(View.GONE);
             fab.setVisibility(View.GONE);
 
-            RidingListGet(user_id,Year,Month,Day);
-            drawPolyLine();
+           /* RidingListGet(user_id,Year,Month,Day);*/
+            /*drawPolyLine();*/
 
         } else if (id == R.id.nav_edit) {
             navigationView.setCheckedItem(R.id.nav_edit);
@@ -1045,11 +1045,11 @@ public class MainActivity extends AppCompatActivity
                 totaldistance = totaldistance + moving_distance[0];
                 Log.e(TAG,"data : " + totaldistance );
 
-                /*PolylineOptions rectOptions = new PolylineOptions()
+                PolylineOptions rectOptions = new PolylineOptions()
                         .width(5)
                         .color(Color.BLACK)
                         .add(thisLatLon).add(CurrenLatLon);
-                Polyline polyline = mMap.addPolyline(rectOptions);*/
+                Polyline polyline = mMap.addPolyline(rectOptions);
 
                 Riding riding = new Riding(thisLat,thisLon);
 
@@ -1780,7 +1780,6 @@ public class MainActivity extends AppCompatActivity
                     if(riding_list.get(0).time == null)
                     {
                         riding_list.add(riding);
-                        mDatabase.child("users").child(user_id).child(Year).child(Month).child(Day).child("Riding").push().setValue(riding_list);
                     }
                     beginDate = sdfNow.parse(riding_list.get(0).time);
                     endDate = sdfNow.parse(riding_list.get(riding_list.size()-1).time);
@@ -1813,12 +1812,7 @@ public class MainActivity extends AppCompatActivity
         Button btn = (Button) findViewById(R.id.btn_cancel);
         btn.setOnClickListener(new View.OnClickListener()  {
 
-
-
-
-
             @Override
-
 
             public void onClick(View v) {
 
@@ -2052,6 +2046,19 @@ public class MainActivity extends AppCompatActivity
                 public void onCancelled(DatabaseError databaseError) {
                 }
             });
+        }
+        else
+        {
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("Error");
+            alert.setMessage("에러가 발생 하였습니다.");
+            alert.setPositiveButton("확인", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                }
+            });
+            alert.show();
         }
     }
     public void setCal_kg_m()
